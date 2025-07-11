@@ -1,0 +1,22 @@
+{
+    "sourceFile": "src/middlewares/validateMember.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752208708997,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752210074655,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -51,7 +51,13 @@\n   try {\r\n     memberSchema.parse(req.body);\r\n     next();\r\n   } catch (err: any) {\r\n-    res.status(400).json({ error: err.errors });\r\n+    res.status(400).json({ \r\n+        error: 'Validation failed',\r\n+  details: err.errors.map((e) => ({\r\n+    field: e.path.join('.'),\r\n+    message: e.message,\r\n+  })),\r\n+    });\r\n   }\r\n };\r\n"
+                }
+            ],
+            "date": 1752208708997,
+            "name": "Commit-0",
+            "content": "import { Request, Response, NextFunction } from 'express';\r\nimport { z } from 'zod';\r\n\r\nconst memberSchema = z.object({\r\n  firstName: z.string().min(1),\r\n  lastName: z.string().min(1),\r\n  email: z.string().email(),\r\n  gender: z.string(),\r\n  memberType: z.enum(['member', 'prospect']),\r\n  club: z.string(),\r\n\r\n  address: z.object({\r\n    street: z.string().optional(),\r\n    city: z.string().optional(),\r\n    state: z.string().optional(),\r\n    zip: z.string().optional(),\r\n    search: z.string().optional(),\r\n  }),\r\n\r\n  marketing: z.object({\r\n    salesRep: z.string().optional(),\r\n    sourcePromotion: z.string().optional(),\r\n    referredBy: z.string().optional(),\r\n  }),\r\n\r\n  additional: z.object({\r\n    trainer: z.string().optional(),\r\n    joiningDate: z.string().optional(),\r\n    occupation: z.string().optional(),\r\n    organization: z.string().optional(),\r\n    involvementType: z.string().optional(),\r\n  }),\r\n\r\n  emergency: z.object({\r\n    name: z.string().optional(),\r\n    relationship: z.string().optional(),\r\n    phone: z.string().optional(),\r\n    email: z.string().optional(),\r\n  }),\r\n\r\n  medicalInfo: z.string().optional(),\r\n  phone: z.string().optional(),\r\n  work: z.string().optional(),\r\n  avatarUrl: z.string().optional(),\r\n  keyFob: z.string().optional(),\r\n  tags: z.string().optional(),\r\n  note: z.string().optional(),\r\n});\r\n\r\nexport const validateMember = (req: Request, res: Response, next: NextFunction) => {\r\n  try {\r\n    memberSchema.parse(req.body);\r\n    next();\r\n  } catch (err: any) {\r\n    res.status(400).json({ error: err.errors });\r\n  }\r\n};\r\n"
+        }
+    ]
+}

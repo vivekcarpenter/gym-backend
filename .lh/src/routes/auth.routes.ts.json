@@ -1,0 +1,50 @@
+{
+    "sourceFile": "src/routes/auth.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 8,
+            "patches": [
+                {
+                    "date": 1752121924505,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752123489861,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,10 @@\n import { Router } from 'express';\r\n import { loginController } from '../controllers/auth.controller';\r\n \r\n+console.log('loginController type:', typeof loginController);\r\n+console.log('loginController value:', loginController);\r\n+\r\n const router = Router();\r\n \r\n router.post('/login', loginController);\r\n \r\n"
+                },
+                {
+                    "date": 1752123555879,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,7 +5,13 @@\n console.log('loginController value:', loginController);\r\n \r\n const router = Router();\r\n \r\n-router.post('/login', loginController);\r\n+// router.post('/login', loginController);\r\n \r\n+if (typeof loginController === 'function') {\r\n+  router.post('/login', loginController);\r\n+} else {\r\n+  console.error('loginController is not a function!');\r\n+}\r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752123614283,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n import { Router } from 'express';\r\n-import { loginController } from '../controllers/auth.controller';\r\n+import { loginController } from './controllers/auth.controller';\r\n \r\n console.log('loginController type:', typeof loginController);\r\n console.log('loginController value:', loginController);\r\n \r\n"
+                },
+                {
+                    "date": 1752123638251,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n import { Router } from 'express';\r\n-import { loginController } from './controllers/auth.controller';\r\n+import { loginController } from '..auth.controller';\r\n \r\n console.log('loginController type:', typeof loginController);\r\n console.log('loginController value:', loginController);\r\n \r\n"
+                },
+                {
+                    "date": 1752123650656,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n import { Router } from 'express';\r\n-import { loginController } from '..auth.controller';\r\n+import { loginController } from '../controllers/auth.controller';\r\n \r\n console.log('loginController type:', typeof loginController);\r\n console.log('loginController value:', loginController);\r\n \r\n"
+                },
+                {
+                    "date": 1752123717391,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,17 +1,15 @@\n import { Router } from 'express';\r\n-import { loginController } from '../controllers/auth.controller';\r\n+import * as authController from '../controllers/auth.controller';\r\n \r\n-console.log('loginController type:', typeof loginController);\r\n-console.log('loginController value:', loginController);\r\n+console.log('authController object:', authController);\r\n+console.log('loginController:', authController.loginController);\r\n \r\n const router = Router();\r\n \r\n-// router.post('/login', loginController);\r\n-\r\n-if (typeof loginController === 'function') {\r\n-  router.post('/login', loginController);\r\n+if (typeof authController.loginController === 'function') {\r\n+  router.post('/login', authController.loginController);\r\n } else {\r\n   console.error('loginController is not a function!');\r\n }\r\n \r\n-export default router;\r\n+export default router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1752123736134,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,15 +1,17 @@\n import { Router } from 'express';\r\n-import * as authController from '../controllers/auth.controller';\r\n+import { loginController } from '../controllers/auth.controller';\r\n \r\n-console.log('authController object:', authController);\r\n-console.log('loginController:', authController.loginController);\r\n+console.log('loginController type:', typeof loginController);\r\n+console.log('loginController value:', loginController);\r\n \r\n const router = Router();\r\n \r\n-if (typeof authController.loginController === 'function') {\r\n-  router.post('/login', authController.loginController);\r\n+// router.post('/login', loginController);\r\n+\r\n\\ No newline at end of file\n+if (typeof loginController === 'function') {\r\n+  router.post('/login', loginController);\r\n } else {\r\n   console.error('loginController is not a function!');\r\n }\r\n \r\n-export default router;\n+export default router;\r\n"
+                },
+                {
+                    "date": 1752123826045,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,17 +1,8 @@\n import { Router } from 'express';\r\n import { loginController } from '../controllers/auth.controller';\r\n \r\n-console.log('loginController type:', typeof loginController);\r\n-console.log('loginController value:', loginController);\r\n-\r\n const router = Router();\r\n \r\n-// router.post('/login', loginController);\r\n+router.post('/login', loginController);\r\n \r\n-if (typeof loginController === 'function') {\r\n-  router.post('/login', loginController);\r\n-} else {\r\n-  console.error('loginController is not a function!');\r\n-}\r\n-\r\n export default router;\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1752121924505,
+            "name": "Commit-0",
+            "content": "import { Router } from 'express';\r\nimport { loginController } from '../controllers/auth.controller';\r\n\r\nconst router = Router();\r\n\r\nrouter.post('/login', loginController);\r\n\r\nexport default router;\r\n"
+        }
+    ]
+}

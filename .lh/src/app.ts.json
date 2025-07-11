@@ -1,0 +1,46 @@
+{
+    "sourceFile": "src/app.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 7,
+            "patches": [
+                {
+                    "date": 1752122083348,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752122093325,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,4 +15,6 @@\n });\r\n \r\n const PORT = process.env.PORT || 5000;\r\n app.listen(PORT, () => console.log(`Server running on port ${PORT}`));\r\n+\r\n+export default app;\r\n"
+                },
+                {
+                    "date": 1752123420371,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,20 @@\n+import express from 'express';\r\n+import cors from 'cors';\r\n+import dotenv from 'dotenv';\r\n+import authRoutes from './routes/auth.routes';\r\n+\r\n+dotenv.config();\r\n+const app = express();\r\n+\r\n+app.use(cors());\r\n+app.use(express.json());\r\n+app.use('/auth',authRoutes)\r\n+\r\n+app.get('/', (req, res) => {\r\n+  res.send('Gym API is running...');\r\n+});\r\n+\r\n+const PORT = process.env.PORT || 5000;\r\n+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));\r\n+\r\n+export default app;\r\n"
+                },
+                {
+                    "date": 1752208744050,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,15 +1,16 @@\n import express from 'express';\r\n import cors from 'cors';\r\n import dotenv from 'dotenv';\r\n import authRoutes from './routes/auth.routes';\r\n-\r\n+import memberRoutes from './routes/member.routes';\r\n dotenv.config();\r\n const app = express();\r\n \r\n app.use(cors());\r\n app.use(express.json());\r\n app.use('/auth',authRoutes)\r\n+app.use('/members', memberRoutes);\r\n \r\n app.get('/', (req, res) => {\r\n   res.send('Gym API is running...');\r\n });\r\n@@ -17,24 +18,4 @@\n const PORT = process.env.PORT || 5000;\r\n app.listen(PORT, () => console.log(`Server running on port ${PORT}`));\r\n \r\n export default app;\r\n-import express from 'express';\r\n-import cors from 'cors';\r\n-import dotenv from 'dotenv';\r\n-import authRoutes from './routes/auth.routes';\r\n-\r\n-dotenv.config();\r\n-const app = express();\r\n-\r\n-app.use(cors());\r\n-app.use(express.json());\r\n-app.use('auth',authRoutes)\r\n-\r\n-app.get('/', (req, res) => {\r\n-  res.send('Gym API is running...');\r\n-});\r\n-\r\n-const PORT = process.env.PORT || 5000;\r\n-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));\r\n-\r\n-export default app;\r\n"
+                },
+                {
+                    "date": 1752211218620,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,15 +2,18 @@\n import cors from 'cors';\r\n import dotenv from 'dotenv';\r\n import authRoutes from './routes/auth.routes';\r\n import memberRoutes from './routes/member.routes';\r\n+import trainerRoutes from './routes/trainer.routes';\r\n+\r\n dotenv.config();\r\n const app = express();\r\n \r\n app.use(cors());\r\n app.use(express.json());\r\n app.use('/auth',authRoutes)\r\n app.use('/members', memberRoutes);\r\n+app.use('/trainers', trainerRoutes);\r\n \r\n app.get('/', (req, res) => {\r\n   res.send('Gym API is running...');\r\n });\r\n"
+                },
+                {
+                    "date": 1752211824404,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,11 +9,11 @@\n const app = express();\r\n \r\n app.use(cors());\r\n app.use(express.json());\r\n-app.use('/auth',authRoutes)\r\n-app.use('/members', memberRoutes);\r\n-app.use('/trainers', trainerRoutes);\r\n+app.use('api/auth',authRoutes)\r\n+app.use('api/members', memberRoutes);\r\n+app.use('api/trainers', trainerRoutes);\r\n \r\n app.get('/', (req, res) => {\r\n   res.send('Gym API is running...');\r\n });\r\n"
+                },
+                {
+                    "date": 1752212148188,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,11 +9,11 @@\n const app = express();\r\n \r\n app.use(cors());\r\n app.use(express.json());\r\n-app.use('api/auth',authRoutes)\r\n-app.use('api/members', memberRoutes);\r\n-app.use('api/trainers', trainerRoutes);\r\n+app.use('/api/auth',authRoutes)\r\n+app.use('/api/members', memberRoutes);\r\n+app.use('/api/trainers', trainerRoutes);\r\n \r\n app.get('/', (req, res) => {\r\n   res.send('Gym API is running...');\r\n });\r\n"
+                },
+                {
+                    "date": 1752212883938,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,9 +9,9 @@\n const app = express();\r\n \r\n app.use(cors());\r\n app.use(express.json());\r\n-app.use('/api/auth',authRoutes)\r\n+app.use('/auth',authRoutes)\r\n app.use('/api/members', memberRoutes);\r\n app.use('/api/trainers', trainerRoutes);\r\n \r\n app.get('/', (req, res) => {\r\n"
+                }
+            ],
+            "date": 1752122083347,
+            "name": "Commit-0",
+            "content": "import express from 'express';\r\nimport cors from 'cors';\r\nimport dotenv from 'dotenv';\r\nimport authRoutes from './routes/auth.routes';\r\n\r\ndotenv.config();\r\nconst app = express();\r\n\r\napp.use(cors());\r\napp.use(express.json());\r\napp.use('auth',authRoutes)\r\n\r\napp.get('/', (req, res) => {\r\n  res.send('Gym API is running...');\r\n});\r\n\r\nconst PORT = process.env.PORT || 5000;\r\napp.listen(PORT, () => console.log(`Server running on port ${PORT}`));\r\n"
+        }
+    ]
+}

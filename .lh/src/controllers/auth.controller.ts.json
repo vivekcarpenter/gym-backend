@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/controllers/auth.controller.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752123806367,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752123806367,
+            "name": "Commit-0",
+            "content": "import { Request, Response } from 'express';\r\nimport jwt from 'jsonwebtoken';\r\nimport bcrypt from 'bcryptjs';\r\nimport prisma from '../lib/prisma';\r\n\r\nexport const loginController = async (req: Request, res: Response) => {\r\n  const { email, password } = req.body;\r\n\r\n  try {\r\n    const user = await prisma.user.findUnique({\r\n      where: { email },\r\n    });\r\n\r\n    if (!user) return res.status(401).json({ error: 'Invalid credentials' });\r\n\r\n    const valid = await bcrypt.compare(password, user.password);\r\n    if (!valid) return res.status(401).json({ error: 'Invalid credentials' });\r\n\r\n    const token = jwt.sign(\r\n      {\r\n        id: user.id,\r\n        role: user.role,\r\n        clubId: user.clubId,\r\n      },\r\n      process.env.JWT_SECRET!,\r\n      { expiresIn: '7d' }\r\n    );\r\n\r\n    res.json({\r\n      user: {\r\n        id: user.id,\r\n        email: user.email,\r\n        role: user.role,\r\n        clubId: user.clubId,\r\n      },\r\n      token,\r\n    });\r\n  } catch (err) {\r\n    console.error(err);\r\n    res.status(500).json({ error: 'Internal server error' });\r\n  }\r\n};\r\n"
+        }
+    ]
+}

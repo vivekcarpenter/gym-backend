@@ -6,10 +6,95 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  // output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+model User {
+  id       String   @id @default(cuid())
+  email    String   @unique
+  password String
+  role     Role
+  clubId   String?
+  club     Club?    @relation(fields: [clubId], references: [id])
+}
+model Club {
+  id       String   @id @default(uuid())
+  name     String
+  location String?
+  users    User[]   // 👈 back relation
+  members Member[]
+  trainers Trainer[]
+}
+model Trainer {
+  id       String   @id @default(uuid())
+  name     String
+  email    String   @unique
+  clubId   String
+  club     Club     @relation(fields: [clubId], references: [id])
+  members Member[]
+}
+
+
+enum Role {
+  super_admin
+  franchise_admin
+  trainer
+  staff
+}
+
+model Member {
+  id             String   @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String   @unique
+  phone          String?
+  work           String?
+  dateOfBirth    DateTime?
+  gender         String
+  avatarUrl      String?
+  keyFob         String?
+  tags           String?
+  note           String?
+
+  memberType     String   // 'member' or 'prospect'
+
+  // Address
+  street         String?
+  city           String?
+  state          String?
+  zip            String?
+  addressSearch  String?
+
+  // Marketing
+  salesRep           String?
+  sourcePromotion    String?
+  referredBy         String?
+
+  // Additional
+  
+  joiningDate        DateTime?
+  occupation         String?
+  organization       String?
+  involvementType    String?
+
+  // Emergency Contact
+  emergencyName         String?
+  emergencyRelationship String?
+  emergencyPhone        String?
+  emergencyEmail        String?
+
+  medicalInfo       String?
+
+  clubId    String
+  club      Club     @relation(fields: [clubId], references: [id])
+
+  trainerId String?  // optiona
+  trainer   Trainer? @relation(fields: [trainerId], references: [id])
+
+  createdAt         DateTime @default(now())
+}
+

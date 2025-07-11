@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/services/member.service.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752208698633,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752208698633,
+            "name": "Commit-0",
+            "content": "import { PrismaClient } from '@prisma/client';\r\n\r\nconst prisma = new PrismaClient();\r\n\r\nexport const createNewMember = async (data: any) => {\r\n  const member = await prisma.member.create({\r\n    data: {\r\n      firstName: data.firstName,\r\n      lastName: data.lastName,\r\n      email: data.email,\r\n      phone: data.phone,\r\n      work: data.work,\r\n      dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,\r\n      gender: data.gender,\r\n      avatarUrl: data.avatarUrl || null,\r\n      keyFob: data.keyFob,\r\n      tags: data.tags,\r\n      note: data.note,\r\n      memberType: data.memberType,\r\n\r\n      street: data.address?.street,\r\n      city: data.address?.city,\r\n      state: data.address?.state,\r\n      zip: data.address?.zip,\r\n      addressSearch: data.address?.search,\r\n\r\n      salesRep: data.marketing?.salesRep,\r\n      sourcePromotion: data.marketing?.sourcePromotion,\r\n      referredBy: data.marketing?.referredBy,\r\n\r\n      trainer: data.additional?.trainer,\r\n      joiningDate: data.additional?.joiningDate ? new Date(data.additional.joiningDate) : null,\r\n      occupation: data.additional?.occupation,\r\n      organization: data.additional?.organization,\r\n      involvementType: data.additional?.involvementType,\r\n\r\n      emergencyName: data.emergency?.name,\r\n      emergencyRelationship: data.emergency?.relationship,\r\n      emergencyPhone: data.emergency?.phone,\r\n      emergencyEmail: data.emergency?.email,\r\n\r\n      medicalInfo: data.medicalInfo,\r\n      clubId: data.club, // Assuming club name maps to an existing clubId, otherwise adjust\r\n    },\r\n  });\r\n\r\n  return member;\r\n};\r\n"
+        }
+    ]
+}

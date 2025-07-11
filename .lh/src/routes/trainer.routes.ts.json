@@ -1,0 +1,22 @@
+{
+    "sourceFile": "src/routes/trainer.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752211194656,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752211893450,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,9 +3,9 @@\n \r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n-router.get('/trainers', async (req, res) => {\r\n+router.get('/', async (req, res) => {\r\n   try {\r\n     const trainers = await prisma.trainer.findMany({\r\n       select: { id: true, name: true },\r\n     });\r\n"
+                }
+            ],
+            "date": 1752211194656,
+            "name": "Commit-0",
+            "content": "import express from 'express';\r\nimport { PrismaClient } from '@prisma/client';\r\n\r\nconst router = express.Router();\r\nconst prisma = new PrismaClient();\r\n\r\nrouter.get('/trainers', async (req, res) => {\r\n  try {\r\n    const trainers = await prisma.trainer.findMany({\r\n      select: { id: true, name: true },\r\n    });\r\n    res.json(trainers);\r\n  } catch (err) {\r\n    res.status(500).json({ error: 'Failed to fetch trainers' });\r\n  }\r\n});\r\n\r\nexport default router;\r\n"
+        }
+    ]
+}
