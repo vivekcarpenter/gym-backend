@@ -1,3 +1,4 @@
+//src>controllers>member.controller.ts
 import { Request, Response } from 'express';
 import { createNewMember } from '../services/member.service';
 import prisma from '../lib/prisma';

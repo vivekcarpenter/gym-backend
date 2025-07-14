@@ -13,31 +13,40 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
-  id       String   @id @default(cuid())
-  email    String   @unique
+  id       String  @id @default(cuid())
+  email    String  @unique
   password String
   role     Role
   clubId   String?
-  club     Club?    @relation(fields: [clubId], references: [id])
-}
-model Club {
-  id       String   @id @default(uuid())
-  name     String
-  location String?
-  users    User[]   // 👈 back relation
-  members Member[]
-  trainers Trainer[]
-}
-model Trainer {
-  id       String   @id @default(uuid())
-  name     String
-  email    String   @unique
-  clubId   String
-  club     Club     @relation(fields: [clubId], references: [id])
-  members Member[]
+  club     Club?   @relation(fields: [clubId], references: [id])
 }
 
+model Club {
+  id       String    @id @default(uuid())
+  name     String
+  location String?
+  users    User[] // 👈 back relation
+  members  Member[]
+  trainers Trainer[]
+  locations Location[]
+
+  schedules ClassSchedule[]
+
+
+}
+
+model Trainer {
+  id      String   @id @default(uuid())
+  name    String
+  email   String   @unique
+  clubId  String
+  club    Club     @relation(fields: [clubId], references: [id])
+  members Member[]
+
+  schedules ClassSchedule[]
+}
 
 enum Role {
   super_admin
@@ -47,54 +56,164 @@ enum Role {
 }
 
 model Member {
-  id             String   @id @default(uuid())
-  firstName      String
-  lastName       String
-  email          String   @unique
-  phone          String?
-  work           String?
-  dateOfBirth    DateTime?
-  gender         String
-  avatarUrl      String?
-  keyFob         String?
-  tags           String?
-  note           String?
+  id          String    @id @default(uuid())
+  firstName   String
+  lastName    String
+  email       String    @unique
+  phone       String?
+  work        String?
+  dateOfBirth DateTime?
+  gender      String
+  avatarUrl   String?
+  keyFob      String?
+  tags        String?
+  note        String?
 
-  memberType     String   // 'member' or 'prospect'
+  memberType String // 'member' or 'prospect'
 
   // Address
-  street         String?
-  city           String?
-  state          String?
-  zip            String?
-  addressSearch  String?
+  street        String?
+  city          String?
+  state         String?
+  zip           String?
+  addressSearch String?
 
   // Marketing
-  salesRep           String?
-  sourcePromotion    String?
-  referredBy         String?
+  salesRep        String?
+  sourcePromotion String?
+  referredBy      String?
 
   // Additional
-  
-  joiningDate        DateTime?
-  occupation         String?
-  organization       String?
-  involvementType    String?
+
+  joiningDate     DateTime?
+  occupation      String?
+  organization    String?
+  involvementType String?
 
   // Emergency Contact
-  emergencyName         String?
-  emergencyRelationship String?
-  emergencyPhone        String?
-  emergencyEmail        String?
+  emergency       Json?
+ 
 
-  medicalInfo       String?
+  //medical information
+  medicalInfo String?
+  allergies           String?
+  medications         String?
+  chronicConditions   String?
+  injuries            String?
+  doctorContact       String?
+  lastExamDate        DateTime?
 
-  clubId    String
-  club      Club     @relation(fields: [clubId], references: [id])
+  clubId String
+  club   Club   @relation(fields: [clubId], references: [id])
 
-  trainerId String?  // optiona
+  trainerId String? // optiona
   trainer   Trainer? @relation(fields: [trainerId], references: [id])
 
-  createdAt         DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  membership Membership?
+
+  paymentMethod PaymentMethod?
+
+  invoice Invoice[]
+
+  bookings Booking[]
+
+  attendances Attendance[]
 }
+
+model Membership {
+  id        String   @id @default(uuid())
+  planName  String
+  startDate DateTime
+  endDate   DateTime
+  autoRenew Boolean
+  status    String
+  member    Member   @relation(fields: [memberId], references: [id])
+  memberId  String   @unique
+}
+
+model MembershipPlan {
+  id             String   @id @default(uuid())
+  name           String   @unique
+  description    String?
+  price          Float
+  durationInDays Int
+  createdAt      DateTime @default(now())
+}
+
+model PaymentMethod {
+  id                    String @id @default(uuid())
+  stripePaymentMethodId String
+  cardBrand             String
+  last4                 String
+  expMonth              Int
+  expYear               Int
+  member                Member @relation(fields: [memberId], references: [id])
+  memberId              String @unique
+}
+
+model Invoice {
+  id       String   @id @default(uuid())
+  member   Member   @relation(fields: [memberId], references: [id])
+  memberId String   
+  planName String
+  amount   Float
+  status   String // 'paid', 'unpaid', 'failed'
+  issuedAt DateTime @default(now())
+  dueDate  DateTime
+}
+
+model ClassSchedule {
+  id          String   @id @default(uuid())
+  title       String
+  date        DateTime
+  duration    Int       // in minutes
+  location    String?
+  trainerId   String
+  trainer     Trainer   @relation(fields: [trainerId], references: [id])
+  maxCapacity Int
+
+  bookings    Booking[]
+  createdAt   DateTime  @default(now())
+
+  clubId        String
+  club          Club     @relation(fields: [clubId], references: [id])
+
+  attendances Attendance[]
+}
+
+model Booking {
+  id        String   @id @default(uuid())
+  memberId  String
+  member     Member        @relation(fields: [memberId], references: [id])
+  schedule  ClassSchedule @relation(fields: [scheduleId], references: [id])
+  scheduleId String
+  status    String   // 'confirmed' | 'canceled' | 'waitlisted'
+  attended  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String
+  clubId    String
+  club      Club     @relation(fields: [clubId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attendance {
+  id         String   @id @default(cuid())
+  scheduleId String
+  memberId   String
+  status     String   // "present" | "absent"
+  markedAt   DateTime @default(now())
+
+  schedule   ClassSchedule @relation(fields: [scheduleId], references: [id])
+  member     Member        @relation(fields: [memberId], references: [id])
+
+   @@unique([memberId, scheduleId])
+}
+
 

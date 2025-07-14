@@ -1,5 +1,7 @@
+//src>routes>member.routes.ts
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import { Request, Response } from 'express';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -48,10 +50,9 @@ router.post('/', async (req, res) => {
         involvementType: additional?.involvementType || null,
 
         // Emergency
-        emergencyName: emergency?.name || null,
-        emergencyRelationship: emergency?.relationship || null,
-        emergencyPhone: emergency?.phone || null,
-        emergencyEmail: emergency?.email || null,
+    
+
+        emergency: emergency || [],
 
         medicalInfo,
         clubId: club,
@@ -64,6 +65,53 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to create member' });
   }
 });
+
+// Add membership to a Member
+
+router.post('/:id/membership', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { planName, startDate, endDate, autoRenew, status } = req.body;
+
+    const plan = await prisma.membershipPlan.findUnique({
+  where: { name: planName },
+});
+if (!plan) {
+  return res.status(400).json({ error: 'Invalid plan selected' });
+}
+
+
+    
+
+    const membership = await prisma.membership.create({
+      data: {
+        planName,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        autoRenew,
+        status,
+        memberId: id,
+      },
+    });
+
+    await prisma.invoice.create({
+  data: {
+    memberId: id,
+    planName,
+    amount: plan.price,
+    status: 'unpaid',
+    issuedAt: new Date(),
+    dueDate: new Date(new Date().setDate(new Date().getDate() + 7)),
+  },
+});
+
+    res.status(201).json(membership);
+  } catch (err) {
+    console.error('Add Membership Error:', err);
+    res.status(500).json({ error: 'Failed to create membership' });
+  }
+});
+
 
 router.get('/', async (req, res) => {
   try {
@@ -136,8 +184,11 @@ router.get('/:id', async (req, res) => {
       include: {
         trainer: true,
         club: true,
+        membership:true,
       },
     });
+
+      console.log('👨‍⚕️ Full member details:', member); // ✅ ADD THIS
 
     if (!member) return res.status(404).json({ error: 'Member not found' });
 
@@ -147,6 +198,71 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch member details' });
   }
 });
+
+//update member
+
+// PUT /api/members/:id
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const updatedData = req.body;
+
+    const updated = await prisma.member.update({
+      where: { id },
+      data: {
+        firstName: updatedData.firstName,
+        lastName: updatedData.lastName,
+        email: updatedData.email,
+        phone: updatedData.phone,
+        work: updatedData.work,
+        dateOfBirth: updatedData.dateOfBirth ? new Date(updatedData.dateOfBirth) : null,
+        gender: updatedData.gender,
+        avatarUrl: updatedData.avatar || null,
+        keyFob: updatedData.keyFob,
+        tags: updatedData.tags,
+        note: updatedData.note,
+        memberType: updatedData.memberType,
+
+        // Address
+        street: updatedData.address?.street || null,
+        city: updatedData.address?.city || null,
+        state: updatedData.address?.state || null,
+        zip: updatedData.address?.zip || null,
+        addressSearch: updatedData.address?.search || null,
+
+        // Marketing
+        salesRep: updatedData.marketing?.salesRep || null,
+        sourcePromotion: updatedData.marketing?.sourcePromotion || null,
+        referredBy: updatedData.marketing?.referredBy || null,
+
+        // Additional
+        trainerId: updatedData.additional?.trainerId || null,
+        joiningDate: updatedData.additional?.joiningDate ? new Date(updatedData.additional.joiningDate) : null,
+        occupation: updatedData.additional?.occupation || null,
+        organization: updatedData.additional?.organization || null,
+        involvementType: updatedData.additional?.involvementType || null,
+
+        // Emergency
+        emergency: updatedData.emergency || [],
+//medical information
+        medicalInfo: updatedData.medicalInfo || '',
+allergies: updatedData.allergies || '',
+medications: updatedData.medications || '',
+chronicConditions: updatedData.chronicConditions || '',
+injuries: updatedData.injuries || '',
+doctorContact: updatedData.doctorContact || '',
+lastExamDate: updatedData.lastExamDate ? new Date(updatedData.lastExamDate) : null,
+        clubId: updatedData.club,
+      },
+    });
+
+    return res.status(200).json(updated);
+  } catch (err) {
+    console.error('Error updating member:', err);
+    return res.status(500).json({ error: 'Failed to update member' });
+  }
+});
+
 
 
 

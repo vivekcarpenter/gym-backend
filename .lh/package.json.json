@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1752127282960,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752406326913,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -6,8 +6,11 @@\n     \"dev\": \"ts-node-dev --respawn --transpile-only src/app.ts\",\r\n     \"test\": \"echo \\\"Error: no test specified\\\" && exit 1\",\r\n     \"seed\": \"ts-node prisma/seed.ts\"\r\n   },\r\n+  \"prisma\": {\r\n+    \"seed\": \"ts-node prisma/seed.ts\"\r\n+  },\r\n   \"keywords\": [],\r\n   \"author\": \"\",\r\n   \"license\": \"ISC\",\r\n   \"description\": \"\",\r\n@@ -16,17 +19,21 @@\n     \"bcryptjs\": \"^3.0.2\",\r\n     \"cors\": \"^2.8.5\",\r\n     \"dotenv\": \"^17.1.0\",\r\n     \"express\": \"^5.1.0\",\r\n+    \"express-validator\": \"^7.2.1\",\r\n     \"jsonwebtoken\": \"^9.0.2\",\r\n-    \"prisma\": \"^6.11.1\"\r\n+    \"multer\": \"^2.0.1\",\r\n+    \"prisma\": \"^6.11.1\",\r\n+    \"zod\": \"^4.0.5\"\r\n   },\r\n   \"devDependencies\": {\r\n     \"@types/bcryptjs\": \"^3.0.0\",\r\n     \"@types/cors\": \"^2.8.19\",\r\n     \"@types/express\": \"^5.0.3\",\r\n     \"@types/jsonwebtoken\": \"^9.0.10\",\r\n     \"@types/node\": \"^24.0.12\",\r\n+    \"ts-node\": \"^10.9.2\",\r\n     \"ts-node-dev\": \"^2.0.0\",\r\n     \"typescript\": \"^5.8.3\"\r\n   }\r\n }\r\n"
                 }
             ],
             "date": 1752127282960,

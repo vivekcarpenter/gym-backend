@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 8,
             "patches": [
                 {
                     "date": 1752211194656,
@@ -12,6 +12,34 @@
                 {
                     "date": 1752211893450,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,9 +3,9 @@\n \r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n-router.get('/trainers', async (req, res) => {\r\n+router.get('/', async (req, res) => {\r\n   try {\r\n     const trainers = await prisma.trainer.findMany({\r\n       select: { id: true, name: true },\r\n     });\r\n"
+                },
+                {
+                    "date": 1752451203517,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,5 +14,8 @@\n     res.status(500).json({ error: 'Failed to fetch trainers' });\r\n   }\r\n });\r\n \r\n+router.get('/by-franchise/:franchiseId', getTrainersByFranchise);\r\n+\r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752482121023,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,5 @@\n+//src>routes/trainer.routes.ts\r\n import express from 'express';\r\n import { PrismaClient } from '@prisma/client';\r\n \r\n const router = express.Router();\r\n"
+                },
+                {
+                    "date": 1752482287035,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,22 +1,8 @@\n-//src>routes/trainer.routes.ts\r\n import express from 'express';\r\n-import { PrismaClient } from '@prisma/client';\r\n+import { getTrainersByFranchise } from '../controllers/trainer.controller';\r\n \r\n const router = express.Router();\r\n-const prisma = new PrismaClient();\r\n \r\n-router.get('/', async (req, res) => {\r\n-  try {\r\n-    const trainers = await prisma.trainer.findMany({\r\n-      select: { id: true, name: true },\r\n-    });\r\n-    res.json(trainers);\r\n-  } catch (err) {\r\n-    res.status(500).json({ error: 'Failed to fetch trainers' });\r\n-  }\r\n-});\r\n-\r\n router.get('/by-franchise/:franchiseId', getTrainersByFranchise);\r\n \r\n-\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752485185322,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,22 @@\n+//src>routes/trainer.routes.ts\r\n import express from 'express';\r\n-import { getTrainersByFranchise } from '../controllers/trainer.controller';\r\n+import { PrismaClient } from '@prisma/client';\r\n \r\n const router = express.Router();\r\n+const prisma = new PrismaClient();\r\n \r\n+router.get('/', async (req, res) => {\r\n+  try {\r\n+    const trainers = await prisma.trainer.findMany({\r\n+      select: { id: true, name: true },\r\n+    });\r\n+    res.json(trainers);\r\n+  } catch (err) {\r\n+    res.status(500).json({ error: 'Failed to fetch trainers' });\r\n+  }\r\n+});\r\n+\r\n router.get('/by-franchise/:franchiseId', getTrainersByFranchise);\r\n \r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752485220942,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,4 @@\n-//src>routes/trainer.routes.ts\r\n import express from 'express';\r\n import { PrismaClient } from '@prisma/client';\r\n \r\n const router = express.Router();\r\n@@ -15,8 +14,7 @@\n     res.status(500).json({ error: 'Failed to fetch trainers' });\r\n   }\r\n });\r\n \r\n-router.get('/by-franchise/:franchiseId', getTrainersByFranchise);\r\n \r\n \r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752486735993,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,6 +15,20 @@\n   }\r\n });\r\n \r\n \r\n+// GET trainers for a franchise/club\r\n+router.get('/by-franchise/:clubId', async (req, res) => {\r\n+  const { clubId } = req.params;\r\n+  \r\n+  try {\r\n+    const trainers = await prisma.trainer.findMany({\r\n+      where: { clubId }\r\n+    });\r\n+    res.json(trainers);\r\n+  } catch (error) {\r\n+    res.status(500).json({ error: 'Failed to fetch trainers' });\r\n+  }\r\n+});\r\n \r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752490243070,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,5 @@\n+// src/routes/trainer.routes.ts\r\n import express from 'express';\r\n import { PrismaClient } from '@prisma/client';\r\n \r\n const router = express.Router();\r\n"
                 }
             ],
             "date": 1752211194656,

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/routes/booking.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752444803123,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752444803123,
+            "name": "Commit-0",
+            "content": "import express from 'express';\r\nimport { PrismaClient } from '@prisma/client';\r\n\r\nconst router = express.Router();\r\nconst prisma = new PrismaClient();\r\n\r\n// Create a new booking\r\nrouter.post('/', async (req, res) => {\r\n  const { scheduleId, memberId, status } = req.body;\r\n\r\n  if (!scheduleId || !memberId || !status) {\r\n    return res.status(400).json({ error: 'Missing required fields' });\r\n  }\r\n\r\n  try {\r\n    // Check for duplicate booking\r\n    const exists = await prisma.booking.findFirst({\r\n      where: { scheduleId, memberId },\r\n    });\r\n\r\n    if (exists) {\r\n      return res.status(400).json({ error: 'Member already booked in this class' });\r\n    }\r\n\r\n    const booking = await prisma.booking.create({\r\n      data: {\r\n        scheduleId,\r\n        memberId,\r\n        status,\r\n      },\r\n    });\r\n\r\n    res.status(201).json(booking);\r\n  } catch (err) {\r\n    console.error('Booking creation failed:', err);\r\n    res.status(500).json({ error: 'Internal server error' });\r\n  }\r\n});\r\n\r\n// Get all bookings for a specific schedule (with member info)\r\nrouter.get('/', async (req, res) => {\r\n  const { scheduleId } = req.query;\r\n\r\n  if (!scheduleId || typeof scheduleId !== 'string') {\r\n    return res.status(400).json({ error: 'Missing or invalid scheduleId' });\r\n  }\r\n\r\n  try {\r\n    const bookings = await prisma.booking.findMany({\r\n      where: { scheduleId },\r\n      include: {\r\n        member: true,\r\n      },\r\n    });\r\n\r\n    res.json(bookings);\r\n  } catch (err) {\r\n    console.error('Fetching bookings failed:', err);\r\n    res.status(500).json({ error: 'Internal server error' });\r\n  }\r\n});\r\n\r\nexport default router;\r\n"
+        }
+    ]
+}

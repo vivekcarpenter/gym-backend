@@ -1,0 +1,30 @@
+{
+    "sourceFile": "src/controllers/trainer.controller.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 3,
+            "patches": [
+                {
+                    "date": 1752451240563,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752482121022,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,8 @@\n+//src>controllers/trainer.controller.ts\r\n+import { Request, Response } from 'express';\r\n+\r\n+import prisma from '../lib/prisma';\r\n export const getTrainersByFranchise = async (req: Request, res: Response) => {\r\n   const { franchiseId } = req.params;\r\n \r\n   try {\r\n"
+                },
+                {
+                    "date": 1752482705479,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,21 +1,26 @@\n-//src>controllers/trainer.controller.ts\r\n import { Request, Response } from 'express';\r\n+import { PrismaClient } from '@prisma/client';\r\n \r\n-import prisma from '../lib/prisma';\r\n+const prisma = new PrismaClient();\r\n+\r\n export const getTrainersByFranchise = async (req: Request, res: Response) => {\r\n   const { franchiseId } = req.params;\r\n \r\n   try {\r\n-    const trainers = await prisma.user.findMany({\r\n+    const trainers = await prisma.trainer.findMany({\r\n       where: {\r\n-        role: 'trainer',\r\n-        franchiseId,\r\n+        clubId: franchiseId, // ✅ This matches your schema\r\n       },\r\n-      select: { id: true, firstName: true, lastName: true },\r\n+      select: {\r\n+        id: true,\r\n+        name: true,\r\n+        email: true,\r\n+      },\r\n     });\r\n \r\n     res.json(trainers);\r\n   } catch (error) {\r\n+    console.error('Error fetching trainers:', error);\r\n     res.status(500).json({ error: 'Error fetching trainers' });\r\n   }\r\n };\r\n"
+                },
+                {
+                    "date": 1752490243069,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,5 @@\n+// src/controllers/trainer.controller.ts\r\n import { Request, Response } from 'express';\r\n import { PrismaClient } from '@prisma/client';\r\n \r\n const prisma = new PrismaClient();\r\n"
+                }
+            ],
+            "date": 1752451240563,
+            "name": "Commit-0",
+            "content": "export const getTrainersByFranchise = async (req: Request, res: Response) => {\r\n  const { franchiseId } = req.params;\r\n\r\n  try {\r\n    const trainers = await prisma.user.findMany({\r\n      where: {\r\n        role: 'trainer',\r\n        franchiseId,\r\n      },\r\n      select: { id: true, firstName: true, lastName: true },\r\n    });\r\n\r\n    res.json(trainers);\r\n  } catch (error) {\r\n    res.status(500).json({ error: 'Error fetching trainers' });\r\n  }\r\n};\r\n"
+        }
+    ]
+}

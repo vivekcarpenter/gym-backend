@@ -1,0 +1,22 @@
+{
+    "sourceFile": "src/job/autoRenewMemberships.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752373946348,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752375308527,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,5 @@\n+//src>>job/autoRenewMemberships.ts\r\n import { PrismaClient } from '@prisma/client';\r\n \r\n const prisma = new PrismaClient();\r\n \r\n"
+                }
+            ],
+            "date": 1752373946347,
+            "name": "Commit-0",
+            "content": "import { PrismaClient } from '@prisma/client';\r\n\r\nconst prisma = new PrismaClient();\r\n\r\nexport const renewMemberships = async () => {\r\n  const today = new Date();\r\n\r\n  const renewable = await prisma.membership.findMany({\r\n    where: {\r\n      autoRenew: true,\r\n      endDate: { lt: today },\r\n      status: 'active',\r\n    },\r\n  });\r\n\r\n  for (const m of renewable) {\r\n    const plan = await prisma.membershipPlan.findUnique({\r\n      where: { name: m.planName },\r\n    });\r\n    if (!plan) continue;\r\n\r\n    const newStart = new Date(m.endDate);\r\n    const newEnd = new Date(m.endDate);\r\n    newEnd.setDate(newEnd.getDate() + plan.durationInDays);\r\n\r\n    // update membership\r\n    await prisma.membership.update({\r\n      where: { id: m.id },\r\n      data: {\r\n        startDate: newStart,\r\n        endDate: newEnd,\r\n      },\r\n    });\r\n\r\n    // generate invoice\r\n    await prisma.invoice.create({\r\n      data: {\r\n        memberId: m.memberId,\r\n        planName: m.planName,\r\n        amount: plan.price,\r\n        status: 'unpaid',\r\n        dueDate: newEnd,\r\n      },\r\n    });\r\n  }\r\n\r\n  console.log(`Renewed ${renewable.length} memberships`);\r\n};\r\n"
+        }
+    ]
+}
