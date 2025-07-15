@@ -21,6 +21,7 @@ model User {
   role     Role
   clubId   String?
   club     Club?   @relation(fields: [clubId], references: [id])
+  name     String?
 }
 
 model Club {
@@ -31,11 +32,17 @@ model Club {
   members   Member[]
   trainers  Trainer[]
   locations Location[]
+  timezone   String
+  clubEmail  String
 
   schedules ClassSchedule[]
   invoices  Invoice[]
 
   communications Communication[]
+
+  devices Device[]
+
+  status String @default("active")
 }
 
 model Trainer {
@@ -47,6 +54,10 @@ model Trainer {
   members Member[]
 
   schedules ClassSchedule[]
+
+  specialization String?
+
+  phone String?
 }
 
 enum Role {
@@ -181,7 +192,9 @@ model ClassSchedule {
   title       String
   date        DateTime
   duration    Int // in minutes
-  location    String?
+
+  locationId  String?
+  location    Location? @relation(fields: [locationId], references: [id])
   trainerId   String
   trainer     Trainer  @relation(fields: [trainerId], references: [id])
   maxCapacity Int
@@ -213,6 +226,8 @@ model Location {
   club      Club     @relation(fields: [clubId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  schedules ClassSchedule[]
 }
 
 model Attendance {
@@ -249,4 +264,17 @@ enum CommunicationType {
   push
   call
   meeting
+}
+
+model Device {
+  id           String   @id @default(uuid())
+  clubId       String
+  club         Club     @relation(fields: [clubId], references: [id])
+  name         String
+  status       String   // "online" | "offline"
+  lastSync     DateTime
+  firmware     String?
+  ipAddress    String?
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
 }

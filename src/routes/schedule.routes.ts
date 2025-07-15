@@ -98,7 +98,7 @@ router.post('/', async (req: Request, res: Response) => {
         title,
         date: new Date(date),
         duration,
-        location,
+        locationId : null,
         trainerId,
         maxCapacity,
         clubId,

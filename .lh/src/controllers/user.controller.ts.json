@@ -1,0 +1,22 @@
+{
+    "sourceFile": "src/controllers/user.controller.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752576995264,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752577526184,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,36 @@\n+// src/controllers/user.controller.ts\r\n+import { Request, Response } from 'express';\r\n+import prisma from '../lib/prisma';\r\n+\r\n+export const getUsersByRole = async (req: Request, res: Response) => {\r\n+  const { role } = req.query;\r\n+\r\n+  const users = await prisma.user.findMany({\r\n+    where: { role: String(role) },\r\n+    select: {\r\n+      id: true,\r\n+      email: true,\r\n+      name: true,\r\n+      clubId: true,\r\n+    },\r\n+  });\r\n+\r\n+  res.json(users);\r\n+};\r\n+\r\n+export const assignClubToUser = async (req: Request, res: Response) => {\r\n+  const { id } = req.params;\r\n+  const { clubId } = req.body;\r\n+\r\n+  try {\r\n+    const updatedUser = await prisma.user.update({\r\n+      where: { id },\r\n+      data: { clubId },\r\n+    });\r\n+\r\n+    res.json(updatedUser);\r\n+  } catch (err) {\r\n+    console.error('Error assigning club to user:', err);\r\n+    res.status(500).json({ error: 'Failed to assign club to user' });\r\n+  }\r\n+};\r\n"
+                }
+            ],
+            "date": 1752576995264,
+            "name": "Commit-0",
+            "content": "// src/controllers/user.controller.ts\r\nimport { Request, Response } from 'express';\r\nimport prisma from '../lib/prisma';\r\n\r\nexport const getUsersByRole = async (req: Request, res: Response) => {\r\n  const { role } = req.query;\r\n\r\n  const users = await prisma.user.findMany({\r\n    where: { role: String(role) },\r\n    select: {\r\n      id: true,\r\n      email: true,\r\n      name: true,\r\n      clubId: true,\r\n    },\r\n  });\r\n\r\n  res.json(users);\r\n};\r\n"
+        }
+    ]
+}

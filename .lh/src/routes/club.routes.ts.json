@@ -1,0 +1,58 @@
+{
+    "sourceFile": "src/routes/club.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 10,
+            "patches": [
+                {
+                    "date": 1752572617721,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752574060830,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,10 +4,13 @@\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n \r\n-router.get('/api/clubs', getAllClubs);          // GET all franchises\r\n-router.post('/api/clubs', createClub);          // POST new franchise\r\n-router.put('/api/clubs/:id', updateClub);       // PUT update franchise\r\n-router.delete('/api/clubs/:id', deleteClub);    // DELETE franchise\r\n+router.get('/', getAllClubs);\r\n+router.post('/', createClub);\r\n+router.put('/:id', updateClub);\r\n+router.delete('/:id', deleteClub);  // DELETE franchise\r\n \r\n export default router;\r\n+\r\n+\r\n+\r\n"
+                },
+                {
+                    "date": 1752575081876,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,16 +1,19 @@\n import express from 'express';\r\n-import { getAllClubs, createClub, updateClub, deleteClub } from '../controllers/club.controller';  \r\n+import { getAllClubs, createClub, updateClub, deleteClub , getClubById} from '../controllers/club.controller';  \r\n import { PrismaClient } from '@prisma/client';\r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n \r\n router.get('/', getAllClubs);\r\n+router.get('/:id', getClubById);\r\n+\r\n router.post('/', createClub);\r\n router.put('/:id', updateClub);\r\n router.delete('/:id', deleteClub);  // DELETE franchise\r\n \r\n+\r\n export default router;\r\n \r\n \r\n \r\n"
+                },
+                {
+                    "date": 1752577900181,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,14 +1,16 @@\n import express from 'express';\r\n-import { getAllClubs, createClub, updateClub, deleteClub , getClubById} from '../controllers/club.controller';  \r\n+import { getAllClubs, createClub, updateClub, deleteClub , getClubById, getMembersByClub} from '../controllers/club.controller';  \r\n import { PrismaClient } from '@prisma/client';\r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n \r\n router.get('/', getAllClubs);\r\n router.get('/:id', getClubById);\r\n+router.get('/:id/members', getMembersByClub);\r\n \r\n+\r\n router.post('/', createClub);\r\n router.put('/:id', updateClub);\r\n router.delete('/:id', deleteClub);  // DELETE franchise\r\n \r\n"
+                },
+                {
+                    "date": 1752578811387,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,16 +1,18 @@\n import express from 'express';\r\n-import { getAllClubs, createClub, updateClub, deleteClub , getClubById, getMembersByClub} from '../controllers/club.controller';  \r\n+import { getAllClubs, createClub, updateClub, deleteClub , getClubById, getMembersByClub, getClubTrainers} from '../controllers/club.controller';  \r\n import { PrismaClient } from '@prisma/client';\r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n \r\n router.get('/', getAllClubs);\r\n router.get('/:id', getClubById);\r\n router.get('/:id/members', getMembersByClub);\r\n+router.get('/api/clubs/:id/trainers', getClubTrainers);\r\n \r\n \r\n+\r\n router.post('/', createClub);\r\n router.put('/:id', updateClub);\r\n router.delete('/:id', deleteClub);  // DELETE franchise\r\n \r\n"
+                },
+                {
+                    "date": 1752579442056,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,9 +7,9 @@\n \r\n router.get('/', getAllClubs);\r\n router.get('/:id', getClubById);\r\n router.get('/:id/members', getMembersByClub);\r\n-router.get('/api/clubs/:id/trainers', getClubTrainers);\r\n+router.get('/:id/trainers', getClubTrainers);\r\n \r\n \r\n \r\n router.post('/', createClub);\r\n"
+                },
+                {
+                    "date": 1752580195665,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n import express from 'express';\r\n-import { getAllClubs, createClub, updateClub, deleteClub , getClubById, getMembersByClub, getClubTrainers} from '../controllers/club.controller';  \r\n+import { getAllClubs, createClub, updateClub, deleteClub , getClubById, getMembersByClub, getClubTrainers, getClubSchedules} from '../controllers/club.controller';  \r\n import { PrismaClient } from '@prisma/client';\r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n@@ -8,8 +8,9 @@\n router.get('/', getAllClubs);\r\n router.get('/:id', getClubById);\r\n router.get('/:id/members', getMembersByClub);\r\n router.get('/:id/trainers', getClubTrainers);\r\n+router.get('/:id/schedules', getClubSchedules);\r\n \r\n \r\n \r\n router.post('/', createClub);\r\n"
+                },
+                {
+                    "date": 1752585591705,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,7 @@\n import express from 'express';\r\n-import { getAllClubs, createClub, updateClub, deleteClub , getClubById, getMembersByClub, getClubTrainers, getClubSchedules} from '../controllers/club.controller';  \r\n+import { getAllClubs, createClub, updateClub, deleteClub , getClubById, \r\n+    getMembersByClub, getClubTrainers, getClubSchedules, getClubInvoices} from '../controllers/club.controller';  \r\n import { PrismaClient } from '@prisma/client';\r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n@@ -9,11 +10,13 @@\n router.get('/:id', getClubById);\r\n router.get('/:id/members', getMembersByClub);\r\n router.get('/:id/trainers', getClubTrainers);\r\n router.get('/:id/schedules', getClubSchedules);\r\n+router.get('/:id/invoices', getClubInvoices);\r\n \r\n \r\n \r\n+\r\n router.post('/', createClub);\r\n router.put('/:id', updateClub);\r\n router.delete('/:id', deleteClub);  // DELETE franchise\r\n \r\n"
+                },
+                {
+                    "date": 1752585739017,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,9 +17,9 @@\n \r\n \r\n router.post('/', createClub);\r\n router.put('/:id', updateClub);\r\n-router.delete('/:id', deleteClub);  // DELETE franchise\r\n+router.delete('/:id', deleteClub);  \r\n \r\n \r\n export default router;\r\n \r\n"
+                },
+                {
+                    "date": 1752586118924,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,8 @@\n import express from 'express';\r\n import { getAllClubs, createClub, updateClub, deleteClub , getClubById, \r\n-    getMembersByClub, getClubTrainers, getClubSchedules, getClubInvoices} from '../controllers/club.controller';  \r\n+    getMembersByClub, getClubTrainers, getClubSchedules, getClubInvoices,\r\n+suspendClub, activateClub} from '../controllers/club.controller';  \r\n import { PrismaClient } from '@prisma/client';\r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n@@ -20,8 +21,13 @@\n router.put('/:id', updateClub);\r\n router.delete('/:id', deleteClub);  \r\n \r\n \r\n+router.patch('/api/clubs/:id/suspend', suspendClub);\r\n+router.patch('/api/clubs/:id/activate', activateClub);\r\n+\r\n+\r\n+\r\n export default router;\r\n \r\n \r\n \r\n"
+                },
+                {
+                    "date": 1752586132864,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,33 @@\n+import express from 'express';\r\n+import { getAllClubs, createClub, updateClub, deleteClub , getClubById, \r\n+    getMembersByClub, getClubTrainers, getClubSchedules, getClubInvoices,\r\n+suspendClub, activateClub} from '../controllers/club.controller';  \r\n+import { PrismaClient } from '@prisma/client';\r\n+const router = express.Router();\r\n+const prisma = new PrismaClient();\r\n+\r\n+\r\n+router.get('/', getAllClubs);\r\n+router.get('/:id', getClubById);\r\n+router.get('/:id/members', getMembersByClub);\r\n+router.get('/:id/trainers', getClubTrainers);\r\n+router.get('/:id/schedules', getClubSchedules);\r\n+router.get('/:id/invoices', getClubInvoices);\r\n+\r\n+\r\n+\r\n+\r\n+router.post('/', createClub);\r\n+router.put('/:id', updateClub);\r\n+router.delete('/:id', deleteClub);  \r\n+\r\n+\r\n+router.patch('/:id/suspend', suspendClub);\r\n+router.patch('/:id/activate', activateClub);\r\n+\r\n+\r\n+\r\n+export default router;\r\n+\r\n+\r\n+\r\n"
+                }
+            ],
+            "date": 1752572617721,
+            "name": "Commit-0",
+            "content": "import express from 'express';\r\nimport { getAllClubs, createClub, updateClub, deleteClub } from '../controllers/club.controller';  \r\nimport { PrismaClient } from '@prisma/client';\r\nconst router = express.Router();\r\nconst prisma = new PrismaClient();\r\n\r\n\r\nrouter.get('/api/clubs', getAllClubs);          // GET all franchises\r\nrouter.post('/api/clubs', createClub);          // POST new franchise\r\nrouter.put('/api/clubs/:id', updateClub);       // PUT update franchise\r\nrouter.delete('/api/clubs/:id', deleteClub);    // DELETE franchise\r\n\r\nexport default router;\r\n"
+        }
+    ]
+}

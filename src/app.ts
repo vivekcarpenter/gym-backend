@@ -11,6 +11,9 @@ import classRoutes from './routes/class.routes';
 import bookingRoutes from './routes/booking.routes';
 import attendanceRoutes from './routes/attendance.routes';
 import communicationRoutes from './routes/communication.routes';
+import clubRoutes from './routes/club.routes';
+import userRoutes from './routes/user.routes';
+import deviceRoutes from './routes/device.routes';
 
 
 dotenv.config();
@@ -28,6 +31,9 @@ app.use('/api/classes', classRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/communications', communicationRoutes);
+app.use('/api/clubs', clubRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/devices', deviceRoutes);
 
 app.get('/', (req, res) => {
   res.send('Gym API is running...');

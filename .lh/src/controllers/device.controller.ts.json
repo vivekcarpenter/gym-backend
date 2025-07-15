@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/controllers/device.controller.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752585157260,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752585157260,
+            "name": "Commit-0",
+            "content": "import { Request, Response } from 'express';\r\nimport prisma from '../lib/prisma';\r\n\r\nexport const getDevicesByClub = async (req: Request, res: Response) => {\r\n  const { clubId } = req.query;\r\n  if (!clubId) return res.status(400).json({ error: 'clubId is required' });\r\n\r\n  const devices = await prisma.device.findMany({\r\n    where: { clubId: String(clubId) },\r\n    orderBy: { updatedAt: 'desc' },\r\n  });\r\n\r\n  res.json(devices);\r\n};\r\n"
+        }
+    ]
+}
