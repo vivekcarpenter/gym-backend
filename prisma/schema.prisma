@@ -24,17 +24,18 @@ model User {
 }
 
 model Club {
-  id       String    @id @default(uuid())
-  name     String
-  location String?
-  users    User[] // 👈 back relation
-  members  Member[]
-  trainers Trainer[]
+  id        String     @id @default(uuid())
+  name      String
+  location  String?
+  users     User[] // 👈 back relation
+  members   Member[]
+  trainers  Trainer[]
   locations Location[]
 
   schedules ClassSchedule[]
+  invoices  Invoice[]
 
-
+  communications Communication[]
 }
 
 model Trainer {
@@ -91,17 +92,16 @@ model Member {
   involvementType String?
 
   // Emergency Contact
-  emergency       Json?
- 
+  emergency Json?
 
   //medical information
-  medicalInfo String?
-  allergies           String?
-  medications         String?
-  chronicConditions   String?
-  injuries            String?
-  doctorContact       String?
-  lastExamDate        DateTime?
+  medicalInfo       String?
+  allergies         String?
+  medications       String?
+  chronicConditions String?
+  injuries          String?
+  doctorContact     String?
+  lastExamDate      DateTime?
 
   clubId String
   club   Club   @relation(fields: [clubId], references: [id])
@@ -111,7 +111,7 @@ model Member {
 
   createdAt DateTime @default(now())
 
-  membership Membership?
+  membership Membership[]
 
   paymentMethod PaymentMethod?
 
@@ -120,6 +120,8 @@ model Member {
   bookings Booking[]
 
   attendances Attendance[]
+
+  communications Communication[]
 }
 
 model Membership {
@@ -130,7 +132,7 @@ model Membership {
   autoRenew Boolean
   status    String
   member    Member   @relation(fields: [memberId], references: [id])
-  memberId  String   @unique
+  memberId  String
 }
 
 model MembershipPlan {
@@ -154,44 +156,54 @@ model PaymentMethod {
 }
 
 model Invoice {
-  id       String   @id @default(uuid())
-  member   Member   @relation(fields: [memberId], references: [id])
-  memberId String   
+  id       String        @id @default(uuid())
+  member   Member        @relation(fields: [memberId], references: [id])
+  memberId String
   planName String
   amount   Float
-  status   String // 'paid', 'unpaid', 'failed'
-  issuedAt DateTime @default(now())
+  status   InvoiceStatus
+  issuedAt DateTime      @default(now())
   dueDate  DateTime
+
+  clubId String
+  club   Club   @relation(fields: [clubId], references: [id])
+}
+
+enum InvoiceStatus {
+  paid
+  unpaid
+  overdue
+  failed
 }
 
 model ClassSchedule {
   id          String   @id @default(uuid())
   title       String
   date        DateTime
-  duration    Int       // in minutes
+  duration    Int // in minutes
   location    String?
   trainerId   String
-  trainer     Trainer   @relation(fields: [trainerId], references: [id])
+  trainer     Trainer  @relation(fields: [trainerId], references: [id])
   maxCapacity Int
 
-  bookings    Booking[]
-  createdAt   DateTime  @default(now())
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
 
-  clubId        String
-  club          Club     @relation(fields: [clubId], references: [id])
+  clubId String
+  club   Club   @relation(fields: [clubId], references: [id])
 
   attendances Attendance[]
 }
 
 model Booking {
-  id        String   @id @default(uuid())
-  memberId  String
+  id         String        @id @default(uuid())
+  memberId   String
   member     Member        @relation(fields: [memberId], references: [id])
-  schedule  ClassSchedule @relation(fields: [scheduleId], references: [id])
+  schedule   ClassSchedule @relation(fields: [scheduleId], references: [id])
   scheduleId String
-  status    String   // 'confirmed' | 'canceled' | 'waitlisted'
-  attended  Boolean  @default(false)
-  createdAt DateTime @default(now())
+  status     String // 'confirmed' | 'canceled' | 'waitlisted'
+  attended   Boolean       @default(false)
+  createdAt  DateTime      @default(now())
 }
 
 model Location {
@@ -207,13 +219,34 @@ model Attendance {
   id         String   @id @default(cuid())
   scheduleId String
   memberId   String
-  status     String   // "present" | "absent"
+  status     String // "present" | "absent"
   markedAt   DateTime @default(now())
 
-  schedule   ClassSchedule @relation(fields: [scheduleId], references: [id])
-  member     Member        @relation(fields: [memberId], references: [id])
+  schedule ClassSchedule @relation(fields: [scheduleId], references: [id])
+  member   Member        @relation(fields: [memberId], references: [id])
 
-   @@unique([memberId, scheduleId])
+  @@unique([memberId, scheduleId])
 }
 
+model Communication {
+  id        String            @id @default(uuid())
+  type      CommunicationType
+  content   String?
+  note      String
+  createdAt DateTime          @default(now())
 
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id])
+
+  clubId String
+  club   Club   @relation(fields: [clubId], references: [id])
+}
+
+enum CommunicationType {
+  note
+  email
+  sms
+  push
+  call
+  meeting
+}

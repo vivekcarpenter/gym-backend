@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 15,
+            "activePatchIndex": 16,
             "patches": [
                 {
                     "date": 1752122385177,
@@ -68,6 +68,10 @@
                 {
                     "date": 1752484345482,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -114,22 +114,12 @@\n   skipDuplicates: true,\r\n });\r\n \r\n \r\n-await prisma.classSchedule.create({\r\n-  data: {\r\n-    title: 'Bootcamp Monday',\r\n-    date: new Date(), // use today's date for easier testing\r\n-    duration: 60,\r\n-    location: 'Room A',\r\n-    trainerId: trainers[0].id, // links to Mike Bell\r\n-    maxCapacity: 20,\r\n-    clubId: club.id,\r\n-  },\r\n-});\r\n \r\n \r\n \r\n+\r\n   console.log('✅ Seeded club, users, 3 trainers, membership plans, and schedules');\r\n }\r\n \r\n main()\r\n"
+                },
+                {
+                    "date": 1752540397201,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -121,8 +121,10 @@\n \r\n   console.log('✅ Seeded club, users, 3 trainers, membership plans, and schedules');\r\n }\r\n \r\n+//rest is  created manually like member, invoice, .. etc\r\n+\r\n main()\r\n   .catch((e) => {\r\n     console.error(e);\r\n     process.exit(1);\r\n"
                 }
             ],
             "date": 1752122385177,

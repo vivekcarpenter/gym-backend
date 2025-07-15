@@ -1,0 +1,30 @@
+{
+    "sourceFile": "src/routes/communication.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 3,
+            "patches": [
+                {
+                    "date": 1752540621168,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752541042266,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,41 @@\n+import express from 'express';\r\n+import { PrismaClient } from '@prisma/client';\r\n+\r\n+const router = express.Router();\r\n+const prisma = new PrismaClient();\r\n+\r\n+router.post('/', async (req, res) => {\r\n+  const { memberId, note, type } = req.body;\r\n+\r\n+  try {\r\n+    const created = await prisma.communication.create({\r\n+      data: {\r\n+        memberId,\r\n+        note,\r\n+        type,\r\n+        clubId: 'some-club-id' // fetch or derive from member if needed\r\n+      }\r\n+    });\r\n+    res.status(201).json(created);\r\n+  } catch (err) {\r\n+    console.error(err);\r\n+    res.status(500).json({ error: 'Failed to save communication' });\r\n+  }\r\n+});\r\n+\r\n+router.get('/:memberId', async (req, res) => {\r\n+  const { memberId } = req.params;\r\n+\r\n+  try {\r\n+    const notes = await prisma.communication.findMany({\r\n+      where: { memberId },\r\n+      orderBy: { createdAt: 'desc' },\r\n+    });\r\n+    res.json(notes);\r\n+  } catch (err) {\r\n+    console.error(err);\r\n+    res.status(500).json({ error: 'Failed to fetch communication notes' });\r\n+  }\r\n+});\r\n+\r\n+export default router;\r\n"
+                },
+                {
+                    "date": 1752541905222,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,16 +4,17 @@\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n router.post('/', async (req, res) => {\r\n-  const { memberId, note, type } = req.body;\r\n+  const { memberId, note, type, content } = req.body;\r\n \r\n   try {\r\n     const created = await prisma.communication.create({\r\n       data: {\r\n         memberId,\r\n         note,\r\n         type,\r\n+        content,\r\n         clubId: 'some-club-id' // fetch or derive from member if needed\r\n       }\r\n     });\r\n     res.status(201).json(created);\r\n"
+                },
+                {
+                    "date": 1752542234459,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,15 +7,24 @@\n router.post('/', async (req, res) => {\r\n   const { memberId, note, type, content } = req.body;\r\n \r\n   try {\r\n+    const member = await prisma.member.findUnique({\r\n+      where: { id: memberId },\r\n+      select: { clubId: true }\r\n+    });\r\n+\r\n+    if (!member) {\r\n+      return res.status(404).json({ error: 'Member not found' });\r\n+    }\r\n+\r\n     const created = await prisma.communication.create({\r\n       data: {\r\n         memberId,\r\n         note,\r\n         type,\r\n         content,\r\n-        clubId: 'some-club-id' // fetch or derive from member if needed\r\n+        clubId: member.clubId, // fetch or derive from member if needed\r\n       }\r\n     });\r\n     res.status(201).json(created);\r\n   } catch (err) {\r\n@@ -39,43 +48,4 @@\n   }\r\n });\r\n \r\n export default router;\r\n-import express from 'express';\r\n-import { PrismaClient } from '@prisma/client';\r\n-\r\n-const router = express.Router();\r\n-const prisma = new PrismaClient();\r\n-\r\n-router.post('/', async (req, res) => {\r\n-  const { memberId, note, type } = req.body;\r\n-\r\n-  try {\r\n-    const created = await prisma.communication.create({\r\n-      data: {\r\n-        memberId,\r\n-        note,\r\n-        type,\r\n-        clubId: 'some-club-id' // fetch or derive from member if needed\r\n-      }\r\n-    });\r\n-    res.status(201).json(created);\r\n-  } catch (err) {\r\n-    console.error(err);\r\n-    res.status(500).json({ error: 'Failed to save communication' });\r\n-  }\r\n-});\r\n-\r\n-router.get('/:memberId', async (req, res) => {\r\n-  const { memberId } = req.params;\r\n-\r\n-  try {\r\n-    const notes = await prisma.communication.findMany({\r\n-      where: { memberId },\r\n-      orderBy: { createdAt: 'desc' },\r\n-    });\r\n-    res.json(notes);\r\n-  } catch (err) {\r\n-    console.error(err);\r\n-    res.status(500).json({ error: 'Failed to fetch communication notes' });\r\n-  }\r\n-});\r\n"
+                }
+            ],
+            "date": 1752540621168,
+            "name": "Commit-0",
+            "content": "import express from 'express';\r\nimport { PrismaClient } from '@prisma/client';\r\n\r\nconst router = express.Router();\r\nconst prisma = new PrismaClient();\r\n\r\nrouter.post('/', async (req, res) => {\r\n  const { memberId, note, type } = req.body;\r\n\r\n  try {\r\n    const created = await prisma.communication.create({\r\n      data: {\r\n        memberId,\r\n        note,\r\n        type,\r\n        clubId: 'some-club-id' // fetch or derive from member if needed\r\n      }\r\n    });\r\n    res.status(201).json(created);\r\n  } catch (err) {\r\n    console.error(err);\r\n    res.status(500).json({ error: 'Failed to save communication' });\r\n  }\r\n});\r\n\r\nrouter.get('/:memberId', async (req, res) => {\r\n  const { memberId } = req.params;\r\n\r\n  try {\r\n    const notes = await prisma.communication.findMany({\r\n      where: { memberId },\r\n      orderBy: { createdAt: 'desc' },\r\n    });\r\n    res.json(notes);\r\n  } catch (err) {\r\n    console.error(err);\r\n    res.status(500).json({ error: 'Failed to fetch communication notes' });\r\n  }\r\n});\r\n"
+        }
+    ]
+}

@@ -10,6 +10,7 @@ import scheduleRoutes from './routes/schedule.routes';
 import classRoutes from './routes/class.routes';
 import bookingRoutes from './routes/booking.routes';
 import attendanceRoutes from './routes/attendance.routes';
+import communicationRoutes from './routes/communication.routes';
 
 
 dotenv.config();
@@ -26,6 +27,7 @@ app.use('/api/schedule', scheduleRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/communications', communicationRoutes);
 
 app.get('/', (req, res) => {
   res.send('Gym API is running...');

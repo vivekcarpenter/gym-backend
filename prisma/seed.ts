@@ -122,6 +122,8 @@ async function main() {
   console.log('✅ Seeded club, users, 3 trainers, membership plans, and schedules');
 }
 
+//rest is  created manually like member, invoice, .. etc
+
 main()
   .catch((e) => {
     console.error(e);

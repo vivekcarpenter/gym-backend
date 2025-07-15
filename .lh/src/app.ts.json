@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 20,
+            "activePatchIndex": 21,
             "patches": [
                 {
                     "date": 1752122083348,
@@ -88,6 +88,10 @@
                 {
                     "date": 1752492366370,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -21,9 +21,9 @@\n app.use('/api/members', memberRoutes);\r\n app.use('/api/trainers', trainerRoutes);\r\n app.use('/api/plans', plan);\r\n app.use('/api/billing', billingRoutes);\r\n-app.use('/api/schedules', scheduleRoutes);\r\n+app.use('/api/schedule', scheduleRoutes);\r\n app.use('/api/classes', classRoutes);\r\n app.use('/api/bookings', bookingRoutes);\r\n app.use('/api/attendance', attendanceRoutes);\r\n \r\n"
+                },
+                {
+                    "date": 1752541027425,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,39 @@\n+import express from 'express';\r\n+import cors from 'cors';\r\n+import dotenv from 'dotenv';\r\n+import authRoutes from './routes/auth.routes';\r\n+import memberRoutes from './routes/member.routes';\r\n+import trainerRoutes from './routes/trainer.routes';\r\n+import plan from './routes/plan.routes';\r\n+import billingRoutes from './routes/billing.routes';\r\n+import scheduleRoutes from './routes/schedule.routes';\r\n+import classRoutes from './routes/class.routes';\r\n+import bookingRoutes from './routes/booking.routes';\r\n+import attendanceRoutes from './routes/attendance.routes';\r\n+import communicationRoutes from './routes/communication.routes';\r\n+\r\n+\r\n+dotenv.config();\r\n+const app = express();\r\n+\r\n+app.use(cors());\r\n+app.use(express.json());\r\n+app.use('/auth',authRoutes)\r\n+app.use('/api/members', memberRoutes);\r\n+app.use('/api/trainers', trainerRoutes);\r\n+app.use('/api/plans', plan);\r\n+app.use('/api/billing', billingRoutes);\r\n+app.use('/api/schedule', scheduleRoutes);\r\n+app.use('/api/classes', classRoutes);\r\n+app.use('/api/bookings', bookingRoutes);\r\n+app.use('/api/attendance', attendanceRoutes);\r\n+app.use('/api/communications', communicationRoutes);\r\n+\r\n+app.get('/', (req, res) => {\r\n+  res.send('Gym API is running...');\r\n+});\r\n+\r\n+const PORT = process.env.PORT || 5000;\r\n+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));\r\n+\r\n+export default app;\r\n"
                 }
             ],
             "date": 1752122083347,

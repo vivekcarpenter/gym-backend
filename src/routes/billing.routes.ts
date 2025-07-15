@@ -101,6 +101,120 @@ router.patch('/invoices/:id/pay', async (req, res) => {
 });
 
 
+//to get all 
+router.get('/', async (req, res) => {
+  const { clubId, startDate, endDate, type } = req.query;
+
+  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });
+
+  try {
+    const invoices = await prisma.invoice.findMany({
+      where: {
+        clubId: String(clubId),
+        issuedAt: {
+          gte: startDate ? new Date(String(startDate)) : undefined,
+          lte: endDate ? new Date(String(endDate)) : undefined,
+        },
+        ...(type && { member: { membershipType: String(type) } }),
+      },
+     include: {
+        member: {
+          select: { firstName: true, lastName: true },
+        },
+      },
+      orderBy: { issuedAt: 'desc' },
+    });
+
+    const response = invoices.map(inv => ({
+      id: inv.id,
+      memberName: `${inv.member.firstName} ${inv.member.lastName}`,
+      amount: inv.amount,
+      status: inv.status,
+      issuedAt: inv.issuedAt,
+      dueDate: inv.dueDate,
+    }));
+
+    res.json(response);
+  } catch (err) {
+    console.error('Error fetching billing data:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/summary', async (req, res) => {
+  const { clubId, startDate, endDate } = req.query;
+
+  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });
+
+  try {
+    const filters = {
+      clubId: String(clubId),
+      issuedAt: {
+        gte: startDate ? new Date(String(startDate)) : undefined,
+        lte: endDate ? new Date(String(endDate)) : undefined,
+      },
+    };
+
+    const [totalRevenue, unpaidDues, activeMembers] = await Promise.all([
+      prisma.invoice.aggregate({
+        where: { ...filters, status: 'paid' },
+        _sum: { amount: true },
+      }),
+      prisma.invoice.aggregate({
+        where: { ...filters, status: { in: ['unpaid', 'overdue', 'failed'] } },
+        _sum: { amount: true },
+      }),
+      prisma.member.count({
+        where: { clubId: String(clubId), memberType: 'member' },
+      }),
+    ]);
+
+    res.json({
+      totalRevenue: totalRevenue._sum.amount ?? 0,
+      unpaidDues: unpaidDues._sum.amount ?? 0,
+      activeMembers,
+      attendanceRate: 78, // placeholder until real logic exists
+    });
+  } catch (err) {
+    console.error('Summary error:', err);
+    res.status(500).json({ error: 'Failed to calculate summary' });
+  }
+});
+
+router.get('/members', async (req, res) => {
+  const { clubId, membershipType } = req.query;
+
+  if (!clubId) {
+    return res.status(400).json({ error: 'clubId is required' });
+  }
+
+  try {
+    const members = await prisma.member.findMany({
+      where: {
+        clubId: String(clubId),
+        ...(membershipType && { memberType: String(membershipType) }),
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const response = members.map((m) => ({
+      id: m.id,
+      firstName: m.firstName,
+      lastName: m.lastName,
+      memberType: m.memberType,
+      createdAt: m.createdAt,
+    }));
+
+    res.json(response);
+  } catch (err) {
+    console.error('Fetch members error:', err);
+    res.status(500).json({ error: 'Failed to fetch members' });
+  }
+});
+
+export default router;
 
 
-export default router; 
+
+
+

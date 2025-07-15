@@ -6,48 +6,61 @@ const prisma = new PrismaClient();
 
 
 export const getAttendanceByFilters = async (req: Request, res: Response) => {
-  const { date, classId, trainerId, clubId } = req.query;
+  const { clubId, startDate, endDate } = req.query;
+
+  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });
 
   try {
-    const dateFilter =
-      date
-        ? {
-            gte: new Date(`${date}T00:00:00.000Z`), // Start of the day
-            lt: new Date(`${date}T23:59:59.999Z`),  // End of the day
-          }
-        : undefined;
-
     const schedules = await prisma.classSchedule.findMany({
       where: {
-        ...(classId && { id: classId as string }),
-        ...(trainerId && { trainerId: trainerId as string }),
-        ...(date && { date: dateFilter }),
-        ...(clubId && { clubId: clubId as string }),
+        clubId: String(clubId),
+        date: {
+          gte: startDate ? new Date(String(startDate)) : undefined,
+          lte: endDate ? new Date(String(endDate)) : undefined,
+        },
       },
       include: {
-        trainer: true,
         attendances: {
-          include: {
-            member: true,
-          },
+          include: { member: true },
         },
-        bookings: {
-          include: {
-            member: true,
-          },
-        },
-      },
-      orderBy: {
-        date: 'asc',
       },
     });
 
-    res.json(schedules);
+    const attendanceMap = new Map();
+
+    for (const schedule of schedules) {
+      for (const record of schedule.attendances) {
+        const id = record.member.id;
+        const key = `${id}`;
+        const existing = attendanceMap.get(key) || {
+          memberName: `${record.member.firstName} ${record.member.lastName}`,
+          total: 0,
+          noShows: 0,
+          lastVisit: '',
+        };
+
+        existing.total += 1;
+        if (record.status === 'absent') {
+          existing.noShows += 1;
+        }
+
+        if (!existing.lastVisit || new Date(schedule.date) > new Date(existing.lastVisit)) {
+          existing.lastVisit = schedule.date.toISOString();
+        }
+
+        attendanceMap.set(key, existing);
+      }
+    }
+
+    const result = Array.from(attendanceMap.values());
+
+    res.json(result);
   } catch (err) {
     console.error('Attendance fetch error:', err);
     res.status(500).json({ message: 'Error fetching attendance records' });
   }
 };
+
 
 // POST /attendance
 // Mark attendance for multiple records (bulk)

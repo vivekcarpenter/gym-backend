@@ -68,20 +68,95 @@ router.post('/', async (req, res) => {
 
 // Add membership to a Member
 
+// router.post('/:id/membership', async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { planName, startDate, endDate, autoRenew, status } = req.body;
+
+//     const plan = await prisma.membershipPlan.findUnique({
+//   where: { name: planName },
+// });
+// if (!plan) {
+//   return res.status(400).json({ error: 'Invalid plan selected' });
+// }
+
+
+//     const active = await prisma.membership.findFirst({
+//   where: { memberId: id, status: 'active' }
+
+// });
+
+// if (active) {
+//   return res.status(400).json({
+//     error: 'This member already has an active membership. Please cancel or expire it first.'
+//   });
+// }
+
+//     const membership = await prisma.membership.create({
+//       data: {
+//         planName,
+//         startDate: new Date(startDate),
+//         endDate: new Date(endDate),
+//         autoRenew,
+//         status,
+//         memberId: id,
+//       },
+//     });
+
+//     const member = await prisma.member.findUnique({
+//       where: { id },
+//       select: { clubId: true },
+//     });
+
+//     if (!member) {
+//       return res.status(404).json({ error: 'Member not found' });
+//     }
+
+//     await prisma.invoice.create({
+//   data: {
+//     memberId: id,
+//     planName,
+//     amount: plan.price,
+//     status: 'unpaid',
+//     clubId: member.clubId,
+//     issuedAt: new Date(),
+//     dueDate: new Date(new Date().setDate(new Date().getDate() + 7)),
+//   },
+// });
+
+//     res.status(201).json(membership);
+//   } catch (err) {
+//     console.error('Add Membership Error:', err);
+//     res.status(500).json({ error: 'Failed to create membership' });
+//   }
+// });
+// In your member.routes.ts, update the membership creation route:
+
 router.post('/:id/membership', async (req, res) => {
   try {
     const { id } = req.params;
     const { planName, startDate, endDate, autoRenew, status } = req.body;
 
+    console.log('Creating membership for member:', id);
+    console.log('Request body:', req.body);
+
     const plan = await prisma.membershipPlan.findUnique({
-  where: { name: planName },
-});
-if (!plan) {
-  return res.status(400).json({ error: 'Invalid plan selected' });
-}
-
-
+      where: { name: planName },
+    });
     
+    if (!plan) {
+      return res.status(400).json({ error: 'Invalid plan selected' });
+    }
+
+    const active = await prisma.membership.findFirst({
+      where: { memberId: id, status: 'active' }
+    });
+
+    if (active) {
+      return res.status(400).json({
+        error: 'This member already has an active membership. Please cancel or expire it first.'
+      });
+    }
 
     const membership = await prisma.membership.create({
       data: {
@@ -94,21 +169,76 @@ if (!plan) {
       },
     });
 
-    await prisma.invoice.create({
-  data: {
-    memberId: id,
-    planName,
-    amount: plan.price,
-    status: 'unpaid',
-    issuedAt: new Date(),
-    dueDate: new Date(new Date().setDate(new Date().getDate() + 7)),
-  },
-});
+    console.log('Membership created:', membership);
 
-    res.status(201).json(membership);
+    // Get member details
+    const member = await prisma.member.findUnique({
+      where: { id },
+      select: { clubId: true, firstName: true, lastName: true },
+    });
+
+    console.log('Member found:', member);
+
+    if (!member) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+
+    if (!member.clubId) {
+      return res.status(400).json({ error: 'Member does not have a clubId assigned' });
+    }
+
+    // Create invoice with detailed logging
+    console.log('Creating invoice with data:', {
+      memberId: id,
+      planName,
+      amount: plan.price,
+      status: 'unpaid',
+      clubId: member.clubId,
+      issuedAt: new Date(),
+      dueDate: new Date(new Date().setDate(new Date().getDate() + 7)),
+    });
+
+    try {
+      const invoice = await prisma.invoice.create({
+        data: {
+          memberId: id,
+          planName,
+          amount: plan.price,
+          status: 'unpaid',
+          clubId: member.clubId,
+          issuedAt: new Date(),
+          dueDate: new Date(new Date().setDate(new Date().getDate() + 7)),
+        },
+      });
+
+      console.log('Invoice created successfully:', invoice);
+      
+      res.status(201).json({
+        membership,
+        invoice,
+        message: 'Membership and invoice created successfully'
+      });
+      
+    } catch (invoiceError) {
+      console.error('Invoice creation error:', invoiceError);
+      
+      // If invoice creation fails, we might want to rollback the membership
+      await prisma.membership.delete({
+        where: { id: membership.id }
+      });
+      
+      return res.status(500).json({ 
+        error: 'Failed to create invoice', 
+        details: invoiceError.message 
+      });
+    }
+
   } catch (err) {
     console.error('Add Membership Error:', err);
-    res.status(500).json({ error: 'Failed to create membership' });
+    res.status(500).json({ 
+      error: 'Failed to create membership',
+      details: err.message 
+    });
   }
 });
 
@@ -184,7 +314,10 @@ router.get('/:id', async (req, res) => {
       include: {
         trainer: true,
         club: true,
-        membership:true,
+        membership: {
+      orderBy: { startDate: 'desc' }, // Get most recent first
+      take: 1,                        // Optional: only return one latest
+    },
       },
     });
 
