@@ -22,6 +22,8 @@ model User {
   clubId   String?
   club     Club?   @relation(fields: [clubId], references: [id])
   name     String?
+
+  assignedLeads Lead[]
 }
 
 model Club {
@@ -43,6 +45,8 @@ model Club {
   devices Device[]
 
   status String @default("active")
+
+  leads     Lead[]
 }
 
 model Trainer {
@@ -81,7 +85,7 @@ model Member {
   tags        String?
   note        String?
 
-  memberType String // 'member' or 'prospect'
+  memberType  String // 'member' or 'prospect'
 
   // Address
   street        String?
@@ -133,6 +137,9 @@ model Member {
   attendances Attendance[]
 
   communications Communication[]
+
+  leadId        String? @unique
+  lead          Lead?   @relation(fields: [leadId], references: [id])
 }
 
 model Membership {
@@ -250,8 +257,11 @@ model Communication {
   note      String
   createdAt DateTime          @default(now())
 
-  memberId String
-  member   Member @relation(fields: [memberId], references: [id])
+  leadId    String?              // Reference to Lead (for leads still in CRM system)
+  lead      Lead?             @relation(fields: [leadId], references: [id])
+
+  memberId  String? 
+  member    Member?  @relation(fields: [memberId], references: [id])
 
   clubId String
   club   Club   @relation(fields: [clubId], references: [id])
@@ -278,3 +288,63 @@ model Device {
   updatedAt    DateTime @updatedAt
   createdAt    DateTime @default(now())
 }
+
+model Permission {
+  id        String   @id @default(uuid())
+  role      Role
+  key       String   // e.g., "view_members", "edit_reports"
+  allowed   Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([role, key])
+}
+
+model TrainingResource {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  fileUrl     String?      // for uploaded files
+  videoUrl    String?      // for embedded videos
+  type        ResourceType // 'video', 'document', 'checklist'
+  tags        String[]     // PostgreSQL array
+  roles       Role[]       // enum[] → ['staff', 'trainer']
+  createdAt   DateTime @default(now())
+}
+
+enum ResourceType {
+  video
+  document
+  checklist
+}
+
+
+model Lead {
+  id             String       @id @default(uuid())
+  name           String
+  email          String     @unique
+  phone          String
+  status         LeadStatus @default(NEW)
+
+  assignedFor    String?       // User ID of the person the lead is assigned to
+  assignedUser   User?      @relation(fields: [assignedFor], references: [id]) // Link to User model
+
+  clubId         String       // Reference to the Club (Franchise)
+  club           Club       @relation(fields: [clubId], references: [id])  // Link to Club model
+
+  leadSource     String?    // Optional field to track the source of the lead
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  convertedAt    DateTime? 
+
+  communications Communication[] // Link to communications related to the lead
+  member         Member?    // Link to Member (once the lead converts into a member)
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  SCHEDULED
+  CONVERTED
+}
+

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/controllers/training.controller.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752618255975,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752618255975,
+            "name": "Commit-0",
+            "content": "import { Request, Response } from 'express';\r\nimport prisma from '../lib/prisma';\r\nimport path from 'path';\r\n\r\nexport const getTrainingResources = async (_req: Request, res: Response) => {\r\n  try {\r\n    const resources = await prisma.trainingResource.findMany({\r\n      orderBy: { createdAt: 'desc' },\r\n    });\r\n    res.json(resources);\r\n  } catch (err) {\r\n    console.error('Get training error:', err);\r\n    res.status(500).json({ error: 'Failed to fetch training materials' });\r\n  }\r\n};\r\n\r\nexport const createTrainingResource = async (req: Request, res: Response) => {\r\n  const { title, description, type, videoUrl, fileUrl, tags, roles } = req.body;\r\n\r\n  try {\r\n    const created = await prisma.trainingResource.create({\r\n      data: {\r\n        title,\r\n        description,\r\n        type,\r\n        videoUrl,\r\n        fileUrl,\r\n        tags,\r\n        roles,\r\n      },\r\n    });\r\n\r\n    res.status(201).json(created);\r\n  } catch (err) {\r\n    console.error('Create training error:', err);\r\n    res.status(500).json({ error: 'Failed to create training resource' });\r\n  }\r\n};\r\n\r\nexport const uploadTrainingFile = async (req: Request, res: Response) => {\r\n  try {\r\n    const file = req.file;\r\n    if (!file) return res.status(400).json({ error: 'No file uploaded' });\r\n\r\n    // In production → upload to Supabase/S3 and return public URL\r\n    const url = `/uploads/${file.filename}`;\r\n\r\n    res.json({ url });\r\n  } catch (err) {\r\n    console.error('Upload error:', err);\r\n    res.status(500).json({ error: 'File upload failed' });\r\n  }\r\n};\r\n"
+        }
+    ]
+}

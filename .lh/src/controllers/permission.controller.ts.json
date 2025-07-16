@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/controllers/permission.controller.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752593322089,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752593322089,
+            "name": "Commit-0",
+            "content": "import { Request, Response } from 'express';\r\nimport prisma from '../lib/prisma';\r\n\r\nexport const getAllPermissions = async (req: Request, res: Response) => {\r\n  try {\r\n    const { role } = req.query;\r\n    const permissions = await prisma.permission.findMany({\r\n      where: role ? { role: role as any } : {},\r\n      orderBy: { key: 'asc' },\r\n    });\r\n    res.json(permissions);\r\n  } catch (err) {\r\n    console.error('Get permissions error:', err);\r\n    res.status(500).json({ error: 'Failed to fetch permissions' });\r\n  }\r\n};\r\n\r\nexport const updatePermission = async (req: Request, res: Response) => {\r\n  const { id } = req.params;\r\n  const { allowed } = req.body;\r\n\r\n  try {\r\n    const updated = await prisma.permission.update({\r\n      where: { id },\r\n      data: { allowed },\r\n    });\r\n    res.json(updated);\r\n  } catch (err) {\r\n    console.error('Update permission error:', err);\r\n    res.status(500).json({ error: 'Failed to update permission' });\r\n  }\r\n};\r\n"
+        }
+    ]
+}

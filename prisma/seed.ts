@@ -77,7 +77,62 @@ await prisma.trainer.createMany({
 
 
 
+
+const roles = ['super_admin', 'franchise_admin', 'trainer', 'staff'] as const;
+  const keys = [
+    'view_members',
+    'edit_members',
+    'view_reports',
+    'edit_schedule',
+    'manage_billing',
+    'assign_trainers',
+  ] as const;
+
+  for (const role of roles) {
+    for (const key of keys) {
+      await prisma.permission.upsert({
+        where: {
+          role_key: {
+            role,
+            key,
+          },
+        },
+        update: {},
+        create: {
+          role,
+          key,
+          allowed: role === 'super_admin', // Default: only super_admin gets all initially
+        },
+      });
+    }
+  }
+
+  await prisma.trainingResource.create({
+  data: {
+    title: 'How to Check In Members',
+    description: 'This guide explains member check-in flow',
+    type: 'video',
+    videoUrl: 'https://www.youtube.com/watch?v=I2JM92yfs7g&list=RDI2JM92yfs7g&start_radio=1&ab_channel=90%27sDard-BollywoodSongs',
+    roles: ['franchise_admin', 'staff'],
+    tags: ['checkin', 'operations'],
+  },
+});
+
+await prisma.trainingResource.create({
+  data: {
+    title: 'Gym SOP PDF',
+    description: 'Standard Operating Procedures for staff',
+    type: 'document',
+    fileUrl: '/uploads/gym-sop.pdf',
+    tags: ['operations', 'safety'],
+    roles: ['staff', 'trainer'],
+  },
+});
+
+
+  console.log('✅ Seed complete: users, trainers, permissions, club.');
 }
+
 
 main()
   .catch((e) => {

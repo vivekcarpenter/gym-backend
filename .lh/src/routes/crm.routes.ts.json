@@ -1,0 +1,70 @@
+{
+    "sourceFile": "src/routes/crm.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 13,
+            "patches": [
+                {
+                    "date": 1752660502685,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752660681063,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,15 @@\n // gym-api/src/routes/crm.routes.ts\r\n import express from 'express';\r\n import { getLeadsByStatus } from '../controllers/crm.controller';\r\n+import { createLead, updateLead } from '../controllers/crm.controller';\r\n \r\n const router = express.Router();\r\n \r\n router.get('/', getLeadsByStatus);  // Route to fetch leads based on status\r\n+router.post('/', createLead);  // Create a new lead\r\n+router.put('/:id', updateLead);  // Update an existing lead\r\n \r\n export default router;\r\n+\r\n+\r\n+\r\n"
+                },
+                {
+                    "date": 1752661683552,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,11 +4,11 @@\n import { createLead, updateLead } from '../controllers/crm.controller';\r\n \r\n const router = express.Router();\r\n \r\n-router.get('/', getLeadsByStatus);  // Route to fetch leads based on status\r\n-router.post('/', createLead);  // Create a new lead\r\n-router.put('/:id', updateLead);  // Update an existing lead\r\n+router.get('/leads', getLeadsByStatus);  // Route to fetch leads based on status\r\n+router.post('/leads', createLead);  // Create a new lead\r\n+router.put('/leads/:id', updateLead);  // Update an existing lead\r\n \r\n export default router;\r\n \r\n \r\n"
+                },
+                {
+                    "date": 1752663484504,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,11 +4,11 @@\n import { createLead, updateLead } from '../controllers/crm.controller';\r\n \r\n const router = express.Router();\r\n \r\n-router.get('/leads', getLeadsByStatus);  // Route to fetch leads based on status\r\n-router.post('/leads', createLead);  // Create a new lead\r\n-router.put('/leads/:id', updateLead);  // Update an existing lead\r\n+router.get('/crm/leads', getLeadsByStatus);  // Route to fetch leads based on status\r\n+router.post('/crm/leads', createLead);  // Create a new lead\r\n+router.put('/crm/leads/:id', updateLead);  // Update an existing lead\r\n \r\n export default router;\r\n \r\n \r\n"
+                },
+                {
+                    "date": 1752663775455,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,11 +4,11 @@\n import { createLead, updateLead } from '../controllers/crm.controller';\r\n \r\n const router = express.Router();\r\n \r\n-router.get('/crm/leads', getLeadsByStatus);  // Route to fetch leads based on status\r\n-router.post('/crm/leads', createLead);  // Create a new lead\r\n-router.put('/crm/leads/:id', updateLead);  // Update an existing lead\r\n+router.get('/leads', getLeadsByStatus);  // Route to fetch leads based on status\r\n+router.post('/leads', createLead);  // Create a new lead\r\n+router.put('/leads/:id', updateLead);  // Update an existing lead\r\n \r\n export default router;\r\n \r\n \r\n"
+                },
+                {
+                    "date": 1752678730408,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,9 +7,9 @@\n \r\n router.get('/leads', getLeadsByStatus);  // Route to fetch leads based on status\r\n router.post('/leads', createLead);  // Create a new lead\r\n router.put('/leads/:id', updateLead);  // Update an existing lead\r\n-\r\n+router.get('/prospects', getAllProspects);  \r\n export default router;\r\n \r\n \r\n \r\n"
+                },
+                {
+                    "date": 1752678737687,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,15 @@\n+// gym-api/src/routes/crm.routes.ts\r\n+import express from 'express';\r\n+import { getLeadsByStatus, getAllProspects } from '../controllers/crm.controller';\r\n+import { createLead, updateLead } from '../controllers/crm.controller';\r\n+\r\n+const router = express.Router();\r\n+\r\n+router.get('/leads', getLeadsByStatus);  // Route to fetch leads based on status\r\n+router.post('/leads', createLead);  // Create a new lead\r\n+router.put('/leads/:id', updateLead);  // Update an existing lead\r\n+router.get('/prospects', getAllProspects);  \r\n+export default router;\r\n+\r\n+\r\n+\r\n"
+                },
+                {
+                    "date": 1752678832355,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,19 +12,4 @@\n export default router;\r\n \r\n \r\n \r\n-// gym-api/src/routes/crm.routes.ts\r\n-import express from 'express';\r\n-import { getLeadsByStatus } from '../controllers/crm.controller';\r\n-import { createLead, updateLead } from '../controllers/crm.controller';\r\n-\r\n-const router = express.Router();\r\n-\r\n-router.get('/leads', getLeadsByStatus);  // Route to fetch leads based on status\r\n-router.post('/leads', createLead);  // Create a new lead\r\n-router.put('/leads/:id', updateLead);  // Update an existing lead\r\n-router.get('/prospects', getAllProspects);  \r\n-export default router;\r\n-\r\n-\r\n-\r\n"
+                },
+                {
+                    "date": 1752686011944,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,15 +1,31 @@\n-// gym-api/src/routes/crm.routes.ts\r\n import express from 'express';\r\n-import { getLeadsByStatus, getAllProspects } from '../controllers/crm.controller';\r\n-import { createLead, updateLead } from '../controllers/crm.controller';\r\n+import {\r\n+  getLeadsByStatus,\r\n+  getAllProspects,\r\n+  createLead,\r\n+  updateLead,\r\n+  deleteLead,\r\n+  getLeadById,\r\n+  addCommunication,\r\n+  getStaffMembers,\r\n+} from '../controllers/crm.controller';\r\n \r\n const router = express.Router();\r\n \r\n-router.get('/leads', getLeadsByStatus);  // Route to fetch leads based on status\r\n-router.post('/leads', createLead);  // Create a new lead\r\n-router.put('/leads/:id', updateLead);  // Update an existing lead\r\n-router.get('/prospects', getAllProspects);  \r\n-export default router;\r\n+// Lead routes\r\n+router.get('/leads', getLeadsByStatus);          // Get leads by status\r\n+router.get('/leads/:id', getLeadById);           // Get single lead\r\n+router.post('/leads', createLead);               // Create new lead\r\n+router.put('/leads/:id', updateLead);            // Update lead\r\n+router.delete('/leads/:id', deleteLead);         // Delete lead\r\n \r\n+// Prospect routes\r\n+router.get('/prospects', getAllProspects);       // Get all prospects\r\n \r\n+// Communication routes\r\n+router.post('/communications', addCommunication); // Add communication to lead\r\n \r\n+// Staff routes\r\n+router.get('/staff', getStaffMembers);           // Get staff members for assignment\r\n+\r\n+export default router;\r\n"
+                },
+                {
+                    "date": 1752698717842,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,8 +7,9 @@\n   deleteLead,\r\n   getLeadById,\r\n   addCommunication,\r\n   getStaffMembers,\r\n+  convertLead,\r\n } from '../controllers/crm.controller';\r\n \r\n const router = express.Router();\r\n \r\n@@ -27,5 +28,7 @@\n \r\n // Staff routes\r\n router.get('/staff', getStaffMembers);           // Get staff members for assignment\r\n \r\n+router.put('/crm/leads/:id/convert', convertLead);\r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752699075462,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -28,7 +28,7 @@\n \r\n // Staff routes\r\n router.get('/staff', getStaffMembers);           // Get staff members for assignment\r\n \r\n-router.put('/crm/leads/:id/convert', convertLead);\r\n+router.put('/leads/:id/convert', convertLead);\r\n \r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752700432125,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -28,7 +28,7 @@\n \r\n // Staff routes\r\n router.get('/staff', getStaffMembers);           // Get staff members for assignment\r\n \r\n-router.put('/leads/:id/convert', convertLead);\r\n+router.put('crm/leads/:id/convert', convertLead);\r\n \r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752700439939,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -28,7 +28,7 @@\n \r\n // Staff routes\r\n router.get('/staff', getStaffMembers);           // Get staff members for assignment\r\n \r\n-router.put('crm/leads/:id/convert', convertLead);\r\n+router.put('/crm/leads/:id/convert', convertLead);\r\n \r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752700472384,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -28,7 +28,7 @@\n \r\n // Staff routes\r\n router.get('/staff', getStaffMembers);           // Get staff members for assignment\r\n \r\n-router.put('/crm/leads/:id/convert', convertLead);\r\n+router.put('/leads/:id/convert', convertLead);\r\n \r\n export default router;\r\n"
+                }
+            ],
+            "date": 1752660502685,
+            "name": "Commit-0",
+            "content": "// gym-api/src/routes/crm.routes.ts\r\nimport express from 'express';\r\nimport { getLeadsByStatus } from '../controllers/crm.controller';\r\n\r\nconst router = express.Router();\r\n\r\nrouter.get('/', getLeadsByStatus);  // Route to fetch leads based on status\r\n\r\nexport default router;\r\n"
+        }
+    ]
+}

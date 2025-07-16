@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
@@ -14,10 +15,15 @@ import communicationRoutes from './routes/communication.routes';
 import clubRoutes from './routes/club.routes';
 import userRoutes from './routes/user.routes';
 import deviceRoutes from './routes/device.routes';
+import permissionRoutes from './routes/permission.routes';
+import trainingRoutes from './routes/training.routes';
+import crmRoutes from './routes/crm.routes';
 
 
 dotenv.config();
 const app = express();
+
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 app.use(cors());
 app.use(express.json());
@@ -34,6 +40,10 @@ app.use('/api/communications', communicationRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/devices', deviceRoutes);
+app.use('/api/permissions', permissionRoutes);
+app.use('/api/training-resources', trainingRoutes);
+app.use('/api/crm', crmRoutes);
+
 
 app.get('/', (req, res) => {
   res.send('Gym API is running...');

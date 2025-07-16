@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/routes/training.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752618278719,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752618278719,
+            "name": "Commit-0",
+            "content": "import express from 'express';\r\nimport {\r\n  getTrainingResources,\r\n  createTrainingResource,\r\n  uploadTrainingFile,\r\n} from '../controllers/training.controller';\r\nimport multer from 'multer';\r\n\r\nconst router = express.Router();\r\nconst upload = multer({ dest: 'uploads/' }); // For local dev; use S3/Supabase in prod\r\n\r\nrouter.get('/', getTrainingResources);\r\nrouter.post('/', createTrainingResource);\r\nrouter.post('/upload', upload.single('file'), uploadTrainingFile);\r\n\r\nexport default router;\r\n"
+        }
+    ]
+}

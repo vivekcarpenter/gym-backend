@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 21,
+            "activePatchIndex": 25,
             "patches": [
                 {
                     "date": 1752122385177,
@@ -92,6 +92,22 @@
                 {
                     "date": 1752579597973,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -60,14 +60,16 @@\n     {\r\n       name: 'Alyssa Kathan',\r\n       email: 'alyssa@gym.com',\r\n       specialization: 'Strength Training',\r\n+      phone: '123-456-7890',\r\n       clubId: club.id,\r\n     },\r\n     {\r\n       name: 'Jordan Sparks',\r\n       email: 'jordan@gym.com',\r\n       specialization: 'HIIT & Cardio',\r\n+      phone: '987-654-3210',\r\n       clubId: club.id,\r\n     },\r\n   ],\r\n   skipDuplicates: true,\r\n"
+                },
+                {
+                    "date": 1752598020433,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,119 @@\n+\r\n+// ⚠️ Dev seed only. NEVER run this in production.\r\n+\r\n+import { PrismaClient } from '@prisma/client';\r\n+import bcrypt from 'bcryptjs';\r\n+\r\n+const prisma = new PrismaClient();\r\n+\r\n+async function main() {\r\n+  const hashedPassword = await bcrypt.hash('password123', 10);\r\n+\r\n+ \r\n+\r\n+const club = await prisma.club.upsert({\r\n+  where: { id: 'club1' },\r\n+  update: {},\r\n+  create: {\r\n+    id: 'club1',\r\n+    name: 'Test Gym',\r\n+    location: 'Demo City',\r\n+    timezone: 'America/Chicago',\r\n+    clubEmail: 'testclub@gymfitness.com',\r\n+  },\r\n+});\r\n+\r\n+await prisma.user.upsert({\r\n+  where: { email: 'super@gym.com' },\r\n+  update: {},\r\n+  create: {\r\n+    email: 'super@gym.com',\r\n+    password: hashedPassword,\r\n+    role: 'super_admin',\r\n+  },\r\n+});\r\n+\r\n+await prisma.user.upsert({\r\n+  where: { email: 'franchise@gym.com' },\r\n+  update: {},\r\n+  create: {\r\n+    email: 'franchise@gym.com',\r\n+    password: hashedPassword,\r\n+    role: 'franchise_admin',\r\n+    clubId: null,\r\n+  },\r\n+});\r\n+\r\n+await prisma.user.upsert({\r\n+  where: { email: 'franchise2@gym.com' },\r\n+  update: {},\r\n+  create: {\r\n+    email: 'franchise2@gym.com',\r\n+    password: hashedPassword,\r\n+    role: 'franchise_admin',\r\n+    clubId: null,\r\n+  },\r\n+});\r\n+\r\n+await prisma.trainer.createMany({\r\n+  data: [\r\n+    {\r\n+      name: 'Alyssa Kathan',\r\n+      email: 'alyssa@gym.com',\r\n+      specialization: 'Strength Training',\r\n+      phone: '123-456-7890',\r\n+      clubId: club.id,\r\n+    },\r\n+    {\r\n+      name: 'Jordan Sparks',\r\n+      email: 'jordan@gym.com',\r\n+      specialization: 'HIIT & Cardio',\r\n+      phone: '987-654-3210',\r\n+      clubId: club.id,\r\n+    },\r\n+  ],\r\n+  skipDuplicates: true,\r\n+});\r\n+\r\n+\r\n+\r\n+\r\n+const roles = ['super_admin', 'franchise_admin', 'trainer', 'staff'] as const;\r\n+  const keys = [\r\n+    'view_members',\r\n+    'edit_members',\r\n+    'view_reports',\r\n+    'edit_schedule',\r\n+    'manage_billing',\r\n+    'assign_trainers',\r\n+  ] as const;\r\n+\r\n+  for (const role of roles) {\r\n+    for (const key of keys) {\r\n+      await prisma.permission.upsert({\r\n+        where: {\r\n+          role_key: {\r\n+            role,\r\n+            key,\r\n+          },\r\n+        },\r\n+        update: {},\r\n+        create: {\r\n+          role,\r\n+          key,\r\n+          allowed: role === 'super_admin', // Default: only super_admin gets all initially\r\n+        },\r\n+      });\r\n+    }\r\n+  }\r\n+\r\n+  console.log('✅ Seed complete: users, trainers, permissions, club.');\r\n+}\r\n+\r\n+\r\n+main()\r\n+  .catch((e) => {\r\n+    console.error(e);\r\n+    process.exit(1);\r\n+  })\r\n+  .finally(() => prisma.$disconnect());\r\n"
+                },
+                {
+                    "date": 1752619205277,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -106,8 +106,19 @@\n       });\r\n     }\r\n   }\r\n \r\n+  await prisma.trainingResource.create({\r\n+  data: {\r\n+    title: 'How to Check In Members',\r\n+    description: 'This guide explains member check-in flow',\r\n+    type: 'video',\r\n+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',\r\n+    roles: ['franchise_admin', 'staff'],\r\n+    tags: ['checkin', 'operations'],\r\n+  },\r\n+});\r\n+\r\n   console.log('✅ Seed complete: users, trainers, permissions, club.');\r\n }\r\n \r\n \r\n"
+                },
+                {
+                    "date": 1752623664887,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -117,8 +117,20 @@\n     tags: ['checkin', 'operations'],\r\n   },\r\n });\r\n \r\n+await prisma.trainingResource.create({\r\n+  data: {\r\n+    title: 'Gym SOP PDF',\r\n+    description: 'Standard Operating Procedures for staff',\r\n+    type: 'document',\r\n+    fileUrl: '/uploads/gym-sop.pdf',\r\n+    tags: ['operations', 'safety'],\r\n+    roles: ['staff', 'trainer'],\r\n+  },\r\n+});\r\n+\r\n+\r\n   console.log('✅ Seed complete: users, trainers, permissions, club.');\r\n }\r\n \r\n \r\n"
+                },
+                {
+                    "date": 1752623786498,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -111,9 +111,9 @@\n   data: {\r\n     title: 'How to Check In Members',\r\n     description: 'This guide explains member check-in flow',\r\n     type: 'video',\r\n-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',\r\n+    videoUrl: 'https://www.youtube.com/watch?v=I2JM92yfs7g&list=RDI2JM92yfs7g&start_radio=1&ab_channel=90%27sDard-BollywoodSongs',\r\n     roles: ['franchise_admin', 'staff'],\r\n     tags: ['checkin', 'operations'],\r\n   },\r\n });\r\n"
                 }
             ],
             "date": 1752122385177,

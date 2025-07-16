@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 28,
+            "activePatchIndex": 35,
             "patches": [
                 {
                     "date": 1752122083348,
@@ -120,6 +120,34 @@
                 {
                     "date": 1752585193259,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,8 +12,9 @@\n import attendanceRoutes from './routes/attendance.routes';\r\n import communicationRoutes from './routes/communication.routes';\r\n import clubRoutes from './routes/club.routes';\r\n import userRoutes from './routes/user.routes';\r\n+import deviceRoutes from './routes/device.routes';\r\n \r\n \r\n dotenv.config();\r\n const app = express();\r\n@@ -31,8 +32,9 @@\n app.use('/api/attendance', attendanceRoutes);\r\n app.use('/api/communications', communicationRoutes);\r\n app.use('/api/clubs', clubRoutes);\r\n app.use('/api/users', userRoutes);\r\n+app.use('/api/devices', deviceRoutes);\r\n \r\n app.get('/', (req, res) => {\r\n   res.send('Gym API is running...');\r\n });\r\n"
+                },
+                {
+                    "date": 1752593382920,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,8 +13,9 @@\n import communicationRoutes from './routes/communication.routes';\r\n import clubRoutes from './routes/club.routes';\r\n import userRoutes from './routes/user.routes';\r\n import deviceRoutes from './routes/device.routes';\r\n+import permissionRoutes from './routes/permission.routes';\r\n \r\n \r\n dotenv.config();\r\n const app = express();\r\n@@ -33,8 +34,9 @@\n app.use('/api/communications', communicationRoutes);\r\n app.use('/api/clubs', clubRoutes);\r\n app.use('/api/users', userRoutes);\r\n app.use('/api/devices', deviceRoutes);\r\n+app.use('/api/permissions', permissionRoutes);\r\n \r\n app.get('/', (req, res) => {\r\n   res.send('Gym API is running...');\r\n });\r\n"
+                },
+                {
+                    "date": 1752618370399,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,8 +14,9 @@\n import clubRoutes from './routes/club.routes';\r\n import userRoutes from './routes/user.routes';\r\n import deviceRoutes from './routes/device.routes';\r\n import permissionRoutes from './routes/permission.routes';\r\n+import trainingRoutes from './routes/training.routes';\r\n \r\n \r\n dotenv.config();\r\n const app = express();\r\n@@ -35,8 +36,9 @@\n app.use('/api/clubs', clubRoutes);\r\n app.use('/api/users', userRoutes);\r\n app.use('/api/devices', deviceRoutes);\r\n app.use('/api/permissions', permissionRoutes);\r\n+app.use('/api/training', trainingRoutes);\r\n \r\n app.get('/', (req, res) => {\r\n   res.send('Gym API is running...');\r\n });\r\n"
+                },
+                {
+                    "date": 1752618475401,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -36,9 +36,9 @@\n app.use('/api/clubs', clubRoutes);\r\n app.use('/api/users', userRoutes);\r\n app.use('/api/devices', deviceRoutes);\r\n app.use('/api/permissions', permissionRoutes);\r\n-app.use('/api/training', trainingRoutes);\r\n+app.use('/api/training-resources', trainingRoutes);\r\n \r\n app.get('/', (req, res) => {\r\n   res.send('Gym API is running...');\r\n });\r\n"
+                },
+                {
+                    "date": 1752626514475,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,6 @@\n import express from 'express';\r\n+import path from 'path';\r\n import cors from 'cors';\r\n import dotenv from 'dotenv';\r\n import authRoutes from './routes/auth.routes';\r\n import memberRoutes from './routes/member.routes';\r\n@@ -20,8 +21,10 @@\n \r\n dotenv.config();\r\n const app = express();\r\n \r\n+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));\r\n+\r\n app.use(cors());\r\n app.use(express.json());\r\n app.use('/auth',authRoutes)\r\n app.use('/api/members', memberRoutes);\r\n"
+                },
+                {
+                    "date": 1752660857272,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -16,8 +16,9 @@\n import userRoutes from './routes/user.routes';\r\n import deviceRoutes from './routes/device.routes';\r\n import permissionRoutes from './routes/permission.routes';\r\n import trainingRoutes from './routes/training.routes';\r\n+import crmRoutes from './routes/crm.routes';\r\n \r\n \r\n dotenv.config();\r\n const app = express();\r\n@@ -40,9 +41,11 @@\n app.use('/api/users', userRoutes);\r\n app.use('/api/devices', deviceRoutes);\r\n app.use('/api/permissions', permissionRoutes);\r\n app.use('/api/training-resources', trainingRoutes);\r\n+app.use('/api/crm', crmRoutes);\r\n \r\n+\r\n app.get('/', (req, res) => {\r\n   res.send('Gym API is running...');\r\n });\r\n \r\n"
+                },
+                {
+                    "date": 1752664066022,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -41,9 +41,9 @@\n app.use('/api/users', userRoutes);\r\n app.use('/api/devices', deviceRoutes);\r\n app.use('/api/permissions', permissionRoutes);\r\n app.use('/api/training-resources', trainingRoutes);\r\n-app.use('/api/crm', crmRoutes);\r\n+app.use('/api', crmRoutes);\r\n \r\n \r\n app.get('/', (req, res) => {\r\n   res.send('Gym API is running...');\r\n"
+                },
+                {
+                    "date": 1752664143830,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -41,9 +41,9 @@\n app.use('/api/users', userRoutes);\r\n app.use('/api/devices', deviceRoutes);\r\n app.use('/api/permissions', permissionRoutes);\r\n app.use('/api/training-resources', trainingRoutes);\r\n-app.use('/api', crmRoutes);\r\n+app.use('/api/crm', crmRoutes);\r\n \r\n \r\n app.get('/', (req, res) => {\r\n   res.send('Gym API is running...');\r\n"
                 }
             ],
             "date": 1752122083347,
