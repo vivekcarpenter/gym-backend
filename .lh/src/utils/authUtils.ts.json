@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/utils/authUtils.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752733010949,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752733010949,
+            "name": "Commit-0",
+            "content": "// src/utils/authUtils.ts\r\nimport bcrypt from 'bcryptjs';\r\nimport jwt from 'jsonwebtoken';\r\nimport crypto from 'crypto';\r\n\r\nconst JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey'; // Use a strong secret!\r\n\r\nexport const hashPassword = async (password: string): Promise<string> => {\r\n  const salt = await bcrypt.genSalt(10);\r\n  return bcrypt.hash(password, salt);\r\n};\r\n\r\nexport const comparePasswords = async (password: string, hash: string): Promise<boolean> => {\r\n  return bcrypt.compare(password, hash);\r\n};\r\n\r\n// Generates a secure random token for password reset\r\nexport const generatePasswordResetToken = (): { token: string; hashedToken: string; expires: Date } => {\r\n  const token = crypto.randomBytes(32).toString('hex'); // Generate a random token\r\n  const hashedToken = crypto.createHash('sha256').update(token).digest('hex'); // Hash it for DB storage\r\n\r\n  const expires = new Date(Date.now() + 3600000); // Token valid for 1 hour\r\n\r\n  return { token, hashedToken, expires };\r\n};\r\n\r\n// Generates a JWT for the password setup link\r\nexport const generatePasswordSetupToken = (userId: string, email: string): string => {\r\n  return jwt.sign({ userId, email, type: 'password_setup' }, JWT_SECRET, { expiresIn: '1h' }); // Token expires in 1 hour\r\n};\r\n\r\n// Verifies the password setup JWT\r\nexport const verifyPasswordSetupToken = (token: string): { userId: string; email: string; type: string } | null => {\r\n  try {\r\n    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; type: string; iat: number; exp: number };\r\n    if (decoded.type !== 'password_setup') {\r\n      return null; // Ensure it's the correct type of token\r\n    }\r\n    return decoded;\r\n  } catch (error) {\r\n    console.error(\"Error verifying password setup token:\", error);\r\n    return null;\r\n  }\r\n};\r\n\r\n// You might also need a `generateRandomPassword` function if you go the temporary password route\r\nexport const generateRandomPassword = (length = 12): string => {\r\n  const charset = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+\";\r\n  let password = \"\";\r\n  for (let i = 0; i < length; i++) {\r\n    const randomIndex = Math.floor(Math.random() * charset.length);\r\n    password += charset[randomIndex];\r\n  }\r\n  return password;\r\n};"
+        }
+    ]
+}

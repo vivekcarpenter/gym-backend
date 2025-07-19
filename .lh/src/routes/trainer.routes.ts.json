@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 8,
+            "activePatchIndex": 13,
             "patches": [
                 {
                     "date": 1752211194656,
@@ -40,6 +40,26 @@
                 {
                     "date": 1752490243070,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,5 @@\n+// src/routes/trainer.routes.ts\r\n import express from 'express';\r\n import { PrismaClient } from '@prisma/client';\r\n \r\n const router = express.Router();\r\n"
+                },
+                {
+                    "date": 1752729779838,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,8 @@\n // src/routes/trainer.routes.ts\r\n import express from 'express';\r\n import { PrismaClient } from '@prisma/client';\r\n+import { createTrainer } from '../controllers/trainer.controller';\r\n \r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n@@ -30,6 +31,8 @@\n     res.status(500).json({ error: 'Failed to fetch trainers' });\r\n   }\r\n });\r\n \r\n+router.post('/', createTrainer);\r\n \r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752729805960,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,21 +18,23 @@\n });\r\n \r\n \r\n // GET trainers for a franchise/club\r\n-router.get('/by-franchise/:clubId', async (req, res) => {\r\n-  const { clubId } = req.params;\r\n+// router.get('/by-franchise/:clubId', async (req, res) => {\r\n+//   const { clubId } = req.params;\r\n   \r\n-  try {\r\n-    const trainers = await prisma.trainer.findMany({\r\n-      where: { clubId }\r\n-    });\r\n-    res.json(trainers);\r\n-  } catch (error) {\r\n-    res.status(500).json({ error: 'Failed to fetch trainers' });\r\n-  }\r\n-});\r\n+//   try {\r\n+//     const trainers = await prisma.trainer.findMany({\r\n+//       where: { clubId }\r\n+//     });\r\n+//     res.json(trainers);\r\n+//   } catch (error) {\r\n+//     res.status(500).json({ error: 'Failed to fetch trainers' });\r\n+//   }\r\n+// });\r\n \r\n+router.get('/by-franchise/:franchiseId', getTrainersByFranchise);\r\n+\r\n router.post('/', createTrainer);\r\n \r\n \r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752729813265,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,9 @@\n // src/routes/trainer.routes.ts\r\n import express from 'express';\r\n import { PrismaClient } from '@prisma/client';\r\n import { createTrainer } from '../controllers/trainer.controller';\r\n+import { getTrainersByFranchise } from '../controllers/trainer.controller';\r\n \r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n"
+                },
+                {
+                    "date": 1752758288762,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,8 +2,9 @@\n import express from 'express';\r\n import { PrismaClient } from '@prisma/client';\r\n import { createTrainer } from '../controllers/trainer.controller';\r\n import { getTrainersByFranchise } from '../controllers/trainer.controller';\r\n+import { authMiddleware } from '../middlewares/authMiddleware';\r\n \r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n@@ -32,9 +33,9 @@\n //     res.status(500).json({ error: 'Failed to fetch trainers' });\r\n //   }\r\n // });\r\n \r\n-router.get('/by-franchise/:franchiseId', getTrainersByFranchise);\r\n+router.get('/by-franchise/:franchiseId', authMiddleware, getTrainersByFranchise);\r\n \r\n router.post('/', createTrainer);\r\n \r\n \r\n"
+                },
+                {
+                    "date": 1752845329949,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -37,6 +37,25 @@\n router.get('/by-franchise/:franchiseId', authMiddleware, getTrainersByFranchise);\r\n \r\n router.post('/', createTrainer);\r\n \r\n+// routes/trainer.routes.ts\r\n+router.get('/by-user/:userId', async (req, res) => {\r\n+  const { userId } = req.params;\r\n \r\n+  try {\r\n+    const trainer = await prisma.trainer.findUnique({\r\n+      where: { userId },\r\n+    });\r\n+\r\n+    if (!trainer) return res.status(404).json({ error: 'Trainer not found' });\r\n+\r\n+    res.json(trainer);\r\n+  } catch (err) {\r\n+    console.error('Error fetching trainer by userId:', err);\r\n+    res.status(500).json({ error: 'Failed to fetch trainer' });\r\n+  }\r\n+});\r\n+\r\n+\r\n+\r\n export default router;\r\n"
                 }
             ],
             "date": 1752211194656,

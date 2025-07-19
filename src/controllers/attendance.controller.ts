@@ -97,3 +97,41 @@ export const markAttendance = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error saving attendance' });
   }
 };
+
+
+export const getAttendanceForSchedule = async (req: Request, res: Response) => {
+  const { scheduleId } = req.params;
+
+  try {
+    // Fetch all members who booked this class
+    const bookings = await prisma.booking.findMany({
+      where: { scheduleId },
+      include: { member: { select: { id: true, firstName: true, lastName: true } } },
+    });
+
+    // Fetch existing attendance records for this class
+    const existingAttendance = await prisma.attendance.findMany({
+      where: { scheduleId },
+      select: { memberId: true, status: true, markedAt: true }
+    });
+
+    const attendanceMap = new Map();
+    existingAttendance.forEach(att => attendanceMap.set(att.memberId, { status: att.status, markedAt: att.markedAt }));
+
+    // Combine bookings with attendance status
+    const membersWithStatus = bookings.map(booking => {
+      const memberAttendance = attendanceMap.get(booking.member.id);
+      return {
+        memberId: booking.member.id,
+        memberName: `${booking.member.firstName} ${booking.member.lastName}`,
+        status: memberAttendance ? memberAttendance.status : 'pending', // 'present', 'absent', or 'pending'
+        markedAt: memberAttendance ? memberAttendance.markedAt : null,
+      };
+    });
+
+    res.json(membersWithStatus);
+  } catch (err) {
+    console.error('Error fetching attendance for schedule:', err);
+    res.status(500).json({ error: 'Failed to fetch attendance for schedule.' });
+  }
+};

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/controllers/location.controller.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752752781566,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752752781566,
+            "name": "Commit-0",
+            "content": "import { Request, Response } from 'express';\r\nimport { PrismaClient } from '@prisma/client';\r\n\r\nconst prisma = new PrismaClient();\r\n\r\ninterface AuthenticatedRequest extends Request {\r\n  user?: {\r\n    id: string;\r\n    clubId?: string;\r\n    role: string;\r\n  };\r\n}\r\n\r\nexport const getLocationsByClub = async (req: AuthenticatedRequest, res: Response) => {\r\n  const clubId = req.user?.clubId; // Get clubId from authenticated user\r\n  if (!clubId) {\r\n    return res.status(400).json({ error: 'Club ID is required.' });\r\n  }\r\n\r\n  try {\r\n    const locations = await prisma.location.findMany({\r\n      where: { clubId: clubId },\r\n      select: { id: true, name: true }, // Only need ID and name for the dropdown\r\n      orderBy: { name: 'asc' }\r\n    });\r\n    res.json(locations);\r\n  } catch (error) {\r\n    console.error('Error fetching locations:', error);\r\n    res.status(500).json({ error: 'Failed to fetch locations.' });\r\n  }\r\n};\r\n"
+        }
+    ]
+}

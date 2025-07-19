@@ -3,11 +3,19 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1752618255975,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752729851345,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -50,4 +50,28 @@\n     console.error('Upload error:', err);\r\n     res.status(500).json({ error: 'File upload failed' });\r\n   }\r\n };\r\n+\r\n+export const getTrainersByFranchise = async (req: Request, res: Response) => {\r\n+  const { franchiseId } = req.params;\r\n+\r\n+  try {\r\n+    const trainers = await prisma.trainer.findMany({\r\n+      where: {\r\n+        clubId: franchiseId,\r\n+      },\r\n+      select: {\r\n+        id: true,\r\n+        name: true,\r\n+        email: true,\r\n+        phone: true,         // ✅ ADDED: Include phone\r\n+        specialization: true // ✅ ADDED: Include specialization\r\n+      },\r\n+    });\r\n+\r\n+    res.json(trainers);\r\n+  } catch (error) {\r\n+    console.error('Error fetching trainers:', error);\r\n+    res.status(500).json({ error: 'Error fetching trainers' });\r\n+  }\r\n+};\r\n"
+                },
+                {
+                    "date": 1752729895467,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -63,10 +63,10 @@\n       select: {\r\n         id: true,\r\n         name: true,\r\n         email: true,\r\n-        phone: true,         // ✅ ADDED: Include phone\r\n-        specialization: true // ✅ ADDED: Include specialization\r\n+        phone: true,        \r\n+        specialization: true \r\n       },\r\n     });\r\n \r\n     res.json(trainers);\r\n"
                 }
             ],
             "date": 1752618255975,

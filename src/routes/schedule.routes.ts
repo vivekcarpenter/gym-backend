@@ -1,129 +1,57 @@
-//src/routes/schedule.routes.ts
+// gym-api/src/routes/schedule.routes.ts
+import { Router } from 'express';
+import { authMiddleware } from '../middlewares/authMiddleware'; // Your authentication middleware
 
-import express from 'express';
-import { PrismaClient } from '@prisma/client';
-import { Request, Response } from 'express';
+import {
+  getTrainerSchedule,
+  createClass,         // Trainer creates their own class
+  updateClass,         // Trainer updates their own class
+  cancelClass,         // Trainer cancels their own class
+  getClassesByAdmin,   // Admin fetches classes for their club
+  createClassByAdmin,  // Admin creates a class (assigns trainer)
+  updateClassByAdmin,  // Admin updates any class in their club
+  deleteClassByAdmin   // Admin deletes/cancels any class in their club
+} from '../controllers/schedule.controller'; // Import all consolidated controller functions
 
-const router = express.Router();
-const prisma = new PrismaClient();
+const router = Router();
 
+// ====================================================================================
+// --- TRAINER-SPECIFIC SCHEDULE ROUTES ---
+// These routes are prefixed with '/trainer' and target actions specific to the logged-in trainer.
+// They all require authentication via authMiddleware.
+// ====================================================================================
 
-// router.get('/', async (req: Request, res: Response) => {
-//   const { clubId } = req.query;
-//   if (!clubId) return res.status(400).json({ error: 'Club ID is required' });
+// GET /api/schedule/trainer/my - Fetch classes for the logged-in trainer
+router.get('/trainer/my', authMiddleware, getTrainerSchedule);
 
-//   try {
-//     const schedules = await prisma.classSchedule.findMany({
-//       where: { clubId: String(clubId) },
-//       include: {
-//         trainer: true,
-//         bookings: {
-//           include: { member: true },
-//         }
-//       },
-//       orderBy: { date: 'asc' },
-//     });
-//     res.json(schedules);
-//   } catch (err) {
-//     console.error('Fetch schedules error:', err);
-//     res.status(500).json({ error: 'Failed to fetch schedules' });
-//   }
-// });
+// POST /api/schedule/trainer - Create a new class by the logged-in trainer
+router.post('/trainer', authMiddleware, createClass);
 
-// In schedule.routes.ts, update your GET route:
-router.get('/', async (req: Request, res: Response) => {
-  const { clubId, date, trainerId, classId } = req.query;
-  
-  if (!clubId) return res.status(400).json({ error: 'Club ID is required' });
+// PATCH /api/schedule/trainer/:id - Update a class created by the logged-in trainer
+router.patch('/trainer/:id', authMiddleware, updateClass);
 
-  try {
-    const whereClause: any = { clubId: String(clubId) };
-    
-    // Add date filtering if provided
-    if (date) {
-      const filterDate = new Date(String(date));
-      const nextDay = new Date(filterDate);
-      nextDay.setDate(nextDay.getDate() + 1);
-      
-      whereClause.date = {
-        gte: filterDate,
-        lt: nextDay
-      };
-    }
-    
-    // Add trainer filtering if provided
-    if (trainerId) {
-      whereClause.trainerId = String(trainerId);
-    }
-    
-    // Add specific class filtering if provided (though this might be redundant)
-    if (classId) {
-      whereClause.id = String(classId);
-    }
-
-    const schedules = await prisma.classSchedule.findMany({
-      where: whereClause,
-      include: {
-        trainer: true,
-        bookings: {
-          include: { member: true },
-        }
-      },
-      orderBy: { date: 'asc' },
-    });
-    
-    res.json(schedules);
-  } catch (err) {
-    console.error('Fetch schedules error:', err);
-    res.status(500).json({ error: 'Failed to fetch schedules' });
-  }
-});
+// DELETE /api/schedule/trainer/:id - Cancel (mark as cancelled) a class created by the logged-in trainer
+router.delete('/trainer/:id', authMiddleware, cancelClass);
 
 
-// POST create new schedule
-router.post('/', async (req: Request, res: Response) => {
-  const {
-    title,
-    date,
-    duration,
-    location,
-    trainerId,
-    maxCapacity,
-    clubId,
-  } = req.body;
+// ====================================================================================
+// --- FRANCHISE ADMIN-SPECIFIC SCHEDULE ROUTES ---
+// These routes are prefixed with '/admin' and target actions specific to franchise admins.
+// They allow admins to manage classes across their entire club.
+// They all require authentication via authMiddleware.
+// ====================================================================================
 
-  try {
-    const newSchedule = await prisma.classSchedule.create({
-      data: {
-        title,
-        date: new Date(date),
-        duration,
-        locationId : null,
-        trainerId,
-        maxCapacity,
-        clubId,
-      },
-    });
-    res.status(201).json(newSchedule);
-  } catch (err) {
-    console.error('Create schedule error:', err);
-    res.status(500).json({ error: 'Failed to create schedule' });
-  }
-});
+// GET /api/schedule/admin/club - Fetch all classes for the logged-in franchise admin's club
+router.get('/admin/club', authMiddleware, getClassesByAdmin);
 
-// DELETE a schedule by ID
-router.delete('/:id', async (req: Request, res: Response) => {
-  const { id } = req.params;
+// POST /api/schedule/admin - Create a new class by the franchise admin (assigns trainer)
+router.post('/admin', authMiddleware, createClassByAdmin);
 
-  try {
-    await prisma.classSchedule.delete({ where: { id } });
-    res.status(204).end();
-  } catch (err) {
-    console.error('Delete schedule error:', err);
-    res.status(500).json({ error: 'Failed to delete schedule' });
-  }
-});
+// PATCH /api/schedule/admin/:id - Update any class within the franchise admin's club
+router.patch('/admin/:id', authMiddleware, updateClassByAdmin);
 
+// DELETE /api/schedule/admin/:id - Delete/Cancel any class within the franchise admin's club
+router.delete('/admin/:id', authMiddleware, deleteClassByAdmin);
 
 
 export default router;

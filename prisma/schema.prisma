@@ -24,13 +24,19 @@ model User {
   name     String?
 
   assignedLeads Lead[]
+
+  // Explicit 1:1 relation to Trainer profile
+  trainerProfile Trainer? @relation(name: "UserToTrainer")
+
+  // Explicit 1:1 relation to Member profile
+  memberProfile  Member?  @relation(name: "UserToMember")
 }
 
 model Club {
   id        String     @id @default(uuid())
   name      String
   location  String?
-  users     User[] // 👈 back relation
+  users     User[] 
   members   Member[]
   trainers  Trainer[]
   locations Location[]
@@ -51,6 +57,8 @@ model Club {
 
 model Trainer {
   id      String   @id @default(uuid())
+  userId           String?          @unique // Ensure only one Trainer profile per User
+  user             User?           @relation(name: "UserToTrainer", fields: [userId], references: [id])
   name    String
   email   String   @unique
   clubId  String
@@ -58,10 +66,14 @@ model Trainer {
   members Member[]
 
   schedules ClassSchedule[]
+  canCreateClasses Boolean         @default(true)
 
   specialization String?
 
   phone String?
+
+  @@index([userId]) 
+  @@index([clubId]) 
 }
 
 enum Role {
@@ -69,10 +81,15 @@ enum Role {
   franchise_admin
   trainer
   staff
+  member
 }
 
 model Member {
   id          String    @id @default(uuid())
+
+  userId            String?         @unique // Optional: Not all members might have a login account initially (e.g., prospects)
+  user              User?           @relation(name: "UserToMember", fields: [userId], references: [id])
+
   firstName   String
   lastName    String
   email       String    @unique
@@ -121,7 +138,7 @@ model Member {
   clubId String
   club   Club   @relation(fields: [clubId], references: [id])
 
-  trainerId String? // optiona
+  trainerId String? // optional
   trainer   Trainer? @relation(fields: [trainerId], references: [id])
 
   createdAt DateTime @default(now())
@@ -140,6 +157,10 @@ model Member {
 
   leadId        String? @unique
   lead          Lead?   @relation(fields: [leadId], references: [id])
+
+  @@index([userId]) // Index for faster lookups by user
+  @@index([clubId])
+  @@index([trainerId])
 }
 
 model Membership {
@@ -202,17 +223,25 @@ model ClassSchedule {
 
   locationId  String?
   location    Location? @relation(fields: [locationId], references: [id])
+
   trainerId   String
   trainer     Trainer  @relation(fields: [trainerId], references: [id])
+
   maxCapacity Int
 
-  bookings  Booking[]
-  createdAt DateTime  @default(now())
+  bookings     Booking[]
+  createdAt     DateTime  @default(now())
 
-  clubId String
-  club   Club   @relation(fields: [clubId], references: [id])
+  clubId       String
+  club         Club   @relation(fields: [clubId], references: [id])
 
-  attendances Attendance[]
+  attendances   Attendance[]
+  classType     String  // New: e.g., "Personal Training", "Group Session"
+  status       String   @default("scheduled") // New: e.g., "scheduled", "cancelled", "completed"
+
+  @@index([trainerId])
+  @@index([clubId])
+  @@index([locationId])
 }
 
 model Booking {
@@ -221,13 +250,23 @@ model Booking {
   member     Member        @relation(fields: [memberId], references: [id])
   schedule   ClassSchedule @relation(fields: [scheduleId], references: [id])
   scheduleId String
-  status     String // 'confirmed' | 'canceled' | 'waitlisted'
-  attended   Boolean       @default(false)
+  status      BookingStatus // Enum: 'confirmed', 'canceled', 'waitlisted'
+
   createdAt  DateTime      @default(now())
+
+  @@index([memberId])
+  @@index([scheduleId])
 }
 
+enum BookingStatus {
+  confirmed
+  canceled
+  waitlisted
+}
+
+
 model Location {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   name      String
   clubId    String
   club      Club     @relation(fields: [clubId], references: [id])
@@ -241,13 +280,19 @@ model Attendance {
   id         String   @id @default(cuid())
   scheduleId String
   memberId   String
-  status     String // "present" | "absent"
+  status      AttendanceStatus // Enum: 'present', 'absent'
   markedAt   DateTime @default(now())
 
   schedule ClassSchedule @relation(fields: [scheduleId], references: [id])
   member   Member        @relation(fields: [memberId], references: [id])
 
   @@unique([memberId, scheduleId])
+  @@index([scheduleId])
+}
+
+enum AttendanceStatus {
+  present
+  absent
 }
 
 model Communication {

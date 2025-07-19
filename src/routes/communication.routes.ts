@@ -1,8 +1,12 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 
+
+
 const router = express.Router();
 const prisma = new PrismaClient();
+
+
 
 router.post('/', async (req, res) => {
   const { memberId, note, type, content } = req.body;
@@ -47,5 +51,9 @@ router.get('/:memberId', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch communication notes' });
   }
 });
+
+
+
+
 
 export default router;

@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 25,
+            "activePatchIndex": 26,
             "patches": [
                 {
                     "date": 1752122385177,
@@ -108,6 +108,10 @@
                 {
                     "date": 1752623786498,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -111,9 +111,9 @@\n   data: {\r\n     title: 'How to Check In Members',\r\n     description: 'This guide explains member check-in flow',\r\n     type: 'video',\r\n-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',\r\n+    videoUrl: 'https://www.youtube.com/watch?v=I2JM92yfs7g&list=RDI2JM92yfs7g&start_radio=1&ab_channel=90%27sDard-BollywoodSongs',\r\n     roles: ['franchise_admin', 'staff'],\r\n     tags: ['checkin', 'operations'],\r\n   },\r\n });\r\n"
+                },
+                {
+                    "date": 1752750377056,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -139,91 +139,4 @@\n     console.error(e);\r\n     process.exit(1);\r\n   })\r\n   .finally(() => prisma.$disconnect());\r\n-\r\n-// ⚠️ Dev seed only. NEVER run this in production.\r\n-\r\n-import { PrismaClient } from '@prisma/client';\r\n-import bcrypt from 'bcryptjs';\r\n-\r\n-const prisma = new PrismaClient();\r\n-\r\n-async function main() {\r\n-  const hashedPassword = await bcrypt.hash('password123', 10);\r\n-\r\n- \r\n-\r\n-const club = await prisma.club.upsert({\r\n-  where: { id: 'club1' },\r\n-  update: {},\r\n-  create: {\r\n-    id: 'club1',\r\n-    name: 'Test Gym',\r\n-    location: 'Demo City',\r\n-    timezone: 'America/Chicago',\r\n-    clubEmail: 'testclub@gymfitness.com',\r\n-  },\r\n-});\r\n-\r\n-await prisma.user.upsert({\r\n-  where: { email: 'super@gym.com' },\r\n-  update: {},\r\n-  create: {\r\n-    email: 'super@gym.com',\r\n-    password: hashedPassword,\r\n-    role: 'super_admin',\r\n-  },\r\n-});\r\n-\r\n-await prisma.user.upsert({\r\n-  where: { email: 'franchise@gym.com' },\r\n-  update: {},\r\n-  create: {\r\n-    email: 'franchise@gym.com',\r\n-    password: hashedPassword,\r\n-    role: 'franchise_admin',\r\n-    clubId: null,\r\n-  },\r\n-});\r\n-\r\n-await prisma.user.upsert({\r\n-  where: { email: 'franchise2@gym.com' },\r\n-  update: {},\r\n-  create: {\r\n-    email: 'franchise2@gym.com',\r\n-    password: hashedPassword,\r\n-    role: 'franchise_admin',\r\n-    clubId: null,\r\n-  },\r\n-});\r\n-\r\n-await prisma.trainer.createMany({\r\n-  data: [\r\n-    {\r\n-      name: 'Alyssa Kathan',\r\n-      email: 'alyssa@gym.com',\r\n-      specialization: 'Strength Training',\r\n-      phone: '123-456-7890',\r\n-      clubId: club.id,\r\n-    },\r\n-    {\r\n-      name: 'Jordan Sparks',\r\n-      email: 'jordan@gym.com',\r\n-      specialization: 'HIIT & Cardio',\r\n-      phone: '987-654-3210',\r\n-      clubId: club.id,\r\n-    },\r\n-  ],\r\n-  skipDuplicates: true,\r\n-});\r\n-\r\n-\r\n-\r\n-}\r\n-\r\n-main()\r\n-  .catch((e) => {\r\n-    console.error(e);\r\n-    process.exit(1);\r\n-  })\r\n-  .finally(() => prisma.$disconnect());\r\n"
                 }
             ],
             "date": 1752122385177,

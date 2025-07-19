@@ -2,9 +2,16 @@
 import { Request, Response } from 'express';
 import { createNewMember } from '../services/member.service';
 import prisma from '../lib/prisma';
+import { email } from 'zod';
 
 export const createMember = async (req: Request, res: Response) => {
   try {
+const club = await prisma.club.findUnique({ where: { id: req.body.club } });
+if (!club) {
+  return res.status(400).json({ error: "Invalid club ID provided" });
+}
+
+
     const member = await createNewMember(req.body);
     res.status(201).json(member);
   } catch (err) {
@@ -57,3 +64,51 @@ export const getMembers = async (req: Request, res: Response) => {
   }
 };
 
+
+export const getMembersByTrainer = async (req: Request, res: Response) => {
+  const { trainerId } = req.query;
+
+  if (!trainerId) {
+    return res.status(400).json({ error: 'Missing trainerId' });
+  }
+
+  try {
+    // Find the trainer (could be by userId or direct trainer ID)
+    const trainer = await prisma.trainer.findFirst({
+      where: {
+        OR: [
+          { userId: trainerId as string }, // If trainerId is actually a User.id
+          { id: trainerId as string },     // If trainerId is the actual Trainer.id
+        ],
+      },
+      include: {
+        members: {
+          where: {
+            memberType: 'member', // Only active members
+          },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+          orderBy: {
+            firstName: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!trainer) {
+      console.log(`No trainer found for ID: ${trainerId}`);
+      return res.status(404).json({ error: 'Trainer not found' });
+    }
+
+    console.log(`Found trainer: ${trainer.name} with ${trainer.members.length} members`);
+
+    res.json(trainer.members);
+  } catch (err) {
+    console.error('Error fetching trainer members:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

@@ -18,6 +18,7 @@ import deviceRoutes from './routes/device.routes';
 import permissionRoutes from './routes/permission.routes';
 import trainingRoutes from './routes/training.routes';
 import crmRoutes from './routes/crm.routes';
+import locationRoutes from './routes/location.routes';
 
 
 dotenv.config();
@@ -36,13 +37,15 @@ app.use('/api/schedule', scheduleRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/attendance', attendanceRoutes);
-app.use('/api/communications', communicationRoutes);
+app.use('/api/communication', communicationRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/permissions', permissionRoutes);
 app.use('/api/training-resources', trainingRoutes);
 app.use('/api/crm', crmRoutes);
+app.use('/api/locations', locationRoutes);
+
 
 
 app.get('/', (req, res) => {

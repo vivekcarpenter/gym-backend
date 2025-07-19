@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 8,
+            "activePatchIndex": 10,
             "patches": [
                 {
                     "date": 1752121924505,
@@ -40,6 +40,14 @@
                 {
                     "date": 1752123826045,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,17 +1,8 @@\n import { Router } from 'express';\r\n import { loginController } from '../controllers/auth.controller';\r\n \r\n-console.log('loginController type:', typeof loginController);\r\n-console.log('loginController value:', loginController);\r\n-\r\n const router = Router();\r\n \r\n-// router.post('/login', loginController);\r\n+router.post('/login', loginController);\r\n \r\n-if (typeof loginController === 'function') {\r\n-  router.post('/login', loginController);\r\n-} else {\r\n-  console.error('loginController is not a function!');\r\n-}\r\n-\r\n export default router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1752733377425,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,10 @@\n+import { Router } from 'express';\r\n+import { loginController , setupPassword} from '../controllers/auth.controller';\r\n+\r\n+const router = Router();\r\n+\r\n+router.post('/login', loginController);\r\n+\r\n+router.post('/set-password', setupPassword);\r\n+\r\n+export default router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1752752233049,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,10 @@\n+import { Router } from 'express';\r\n+import { loginController , setupPassword} from '../controllers/auth.controller';\r\n+\r\n+const router = Router();\r\n+\r\n+router.post('/login', loginController);\r\n+\r\n+router.post('/set-password', setupPassword);\r\n+\r\n+export default router;\n\\ No newline at end of file\n"
                 }
             ],
             "date": 1752121924505,

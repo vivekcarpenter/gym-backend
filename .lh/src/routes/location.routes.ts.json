@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 7,
+            "activePatchIndex": 8,
             "patches": [
                 {
                     "date": 1752441694714,
@@ -36,6 +36,10 @@
                 {
                     "date": 1752489723903,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,28 +5,18 @@\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n // GET locations for a franchise/club\r\n-router.get('/by-franchise/:clubId', async (req, res) => {\r\n-  const { clubId } = req.params;\r\n+router.get('/by-franchise/:franchiseId', async (req, res) => {\r\n+  const { franchiseId } = req.params;\r\n \r\n   try {\r\n     const locations = await prisma.location.findMany({\r\n-      where: { clubId }\r\n+      where: { franchiseId }\r\n     });\r\n     res.json(locations);\r\n   } catch (error) {\r\n     res.status(500).json({ error: 'Failed to fetch locations' });\r\n   }\r\n });\r\n \r\n export default router;\r\n-//src/routes/location.routes.ts\r\n-import express from 'express';\r\n-import { getClassesByFranchise } from '../controllers/class.controller'; // ✅\r\n-\r\n-const router = express.Router();\r\n-\r\n-router.get('/by-franchise/:franchiseId', getClassesByFranchise); // ✅ still okay here\r\n\\ No newline at end of file\n-\r\n-\r\n-export default router;\n"
+                },
+                {
+                    "date": 1752752810397,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,22 +1,8 @@\n-// src/routes/location.routes.ts\r\n+import { Router } from 'express';\r\n+import { authMiddleware } from '../middlewares/authMiddleware';\r\n+import { getLocationsByClub } from '../controllers/location.controller';\r\n \r\n-import express from 'express';\r\n-import { PrismaClient } from '@prisma/client';\r\n-const router = express.Router();\r\n-const prisma = new PrismaClient();\r\n+const router = Router();\r\n+router.get('/', authMiddleware, getLocationsByClub); // GET /api/locations\r\n \r\n-// GET locations for a franchise/club\r\n-router.get('/by-franchise/:franchiseId', async (req, res) => {\r\n-  const { franchiseId } = req.params;\r\n-\r\n-  try {\r\n-    const locations = await prisma.location.findMany({\r\n-      where: { franchiseId }\r\n-    });\r\n-    res.json(locations);\r\n-  } catch (error) {\r\n-    res.status(500).json({ error: 'Failed to fetch locations' });\r\n-  }\r\n-});\r\n-\r\n-export default router;\r\n+export default router;\n\\ No newline at end of file\n"
                 }
             ],
             "date": 1752441694713,

@@ -51,3 +51,27 @@ export const uploadTrainingFile = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'File upload failed' });
   }
 };
+
+export const getTrainersByFranchise = async (req: Request, res: Response) => {
+  const { franchiseId } = req.params;
+
+  try {
+    const trainers = await prisma.trainer.findMany({
+      where: {
+        clubId: franchiseId,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,        
+        specialization: true 
+      },
+    });
+
+    res.json(trainers);
+  } catch (error) {
+    console.error('Error fetching trainers:', error);
+    res.status(500).json({ error: 'Error fetching trainers' });
+  }
+};

@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 5,
             "patches": [
                 {
                     "date": 1752450841096,
@@ -12,6 +12,22 @@
                 {
                     "date": 1752486335122,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,5 @@\n+//// File: src/routes/attendance.routes.ts\r\n import express from 'express';\r\n import {\r\n   getAttendanceByFilters,\r\n   markAttendance,\r\n"
+                },
+                {
+                    "date": 1752752105128,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,13 +1,16 @@\n //// File: src/routes/attendance.routes.ts\r\n import express from 'express';\r\n import {\r\n-  getAttendanceByFilters,\r\n+  getAttendanceForSchedule,\r\n   markAttendance,\r\n } from '../controllers/attendance.controller';\r\n+import { authMiddleware } from '../middlewares/authMiddleware';\r\n \r\n const router = express.Router();\r\n \r\n-router.get('/', getAttendanceByFilters);         // ?date=&classId=&trainerId=\r\n-router.post('/', markAttendance);                // Bulk attendance\r\n+               // Bulk attendance\r\n \r\n+\r\n+router.get('/api/attendance/schedule/:scheduleId', authMiddleware, getAttendanceForSchedule); // Get attendance for a specific class\r\n+router.post('/api/attendance', authMiddleware, markAttendance); // Mark attendance (bulk)\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752752134822,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,10 +7,10 @@\n import { authMiddleware } from '../middlewares/authMiddleware';\r\n \r\n const router = express.Router();\r\n \r\n-               // Bulk attendance\r\n+              \r\n \r\n \r\n-router.get('/api/attendance/schedule/:scheduleId', authMiddleware, getAttendanceForSchedule); // Get attendance for a specific class\r\n-router.post('/api/attendance', authMiddleware, markAttendance); // Mark attendance (bulk)\r\n+router.get('/attendance/schedule/:scheduleId', authMiddleware, getAttendanceForSchedule); // Get attendance for a specific class\r\n+router.post('/attendance', authMiddleware, markAttendance); // Mark attendance (bulk)\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752833755165,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,7 +10,7 @@\n \r\n               \r\n \r\n \r\n-router.get('/attendance/schedule/:scheduleId', authMiddleware, getAttendanceForSchedule); // Get attendance for a specific class\r\n+router.get('/schedule/:scheduleId', authMiddleware, getAttendanceForSchedule); // Get attendance for a specific class\r\n router.post('/attendance', authMiddleware, markAttendance); // Mark attendance (bulk)\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752834019168,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,6 +11,6 @@\n               \r\n \r\n \r\n router.get('/schedule/:scheduleId', authMiddleware, getAttendanceForSchedule); // Get attendance for a specific class\r\n-router.post('/attendance', authMiddleware, markAttendance); // Mark attendance (bulk)\r\n+router.post('/', authMiddleware, markAttendance); // Mark attendance (bulk)\r\n export default router;\r\n"
                 }
             ],
             "date": 1752450841095,

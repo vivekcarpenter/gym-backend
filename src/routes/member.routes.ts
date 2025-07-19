@@ -2,9 +2,12 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
+import { getMembersByTrainer } from '../controllers/member.controller';
 
 const router = express.Router();
 const prisma = new PrismaClient();
+
+router.get('/by-trainer', getMembersByTrainer); 
 
 router.post('/', async (req, res) => {
   try {
@@ -245,12 +248,16 @@ router.post('/:id/membership', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const { tab = 'all', search = '', page = 1, limit = 10, clubId } = req.query;
+    const { tab = 'all', search = '', page = 1, limit = 10, clubId, trainerId } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
     let whereClause: any = {
       clubId: String(clubId),
     };
+
+    if (trainerId) {
+    whereClause.trainerId = trainerId; // ✅ FILTER BY TRAINER
+  }
 
     if (search) {
       whereClause.OR = [
@@ -395,6 +402,32 @@ lastExamDate: updatedData.lastExamDate ? new Date(updatedData.lastExamDate) : nu
     return res.status(500).json({ error: 'Failed to update member' });
   }
 });
+
+// GET /api/members/:id/sessions - All attendance sessions for a member
+router.get('/:id/sessions', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const attendanceRecords = await prisma.attendance.findMany({
+      where: { memberId: id },
+      orderBy: { markedAt: 'desc' },
+      include: {
+        schedule: {
+          include: {
+            trainer: { select: { name: true } },
+            location: { select: { name: true } }
+          }
+        }
+      }
+    });
+
+    res.json(attendanceRecords);
+  } catch (err) {
+    console.error('Error fetching session history:', err);
+    res.status(500).json({ error: 'Failed to fetch session history' });
+  }
+});
+
 
 
 

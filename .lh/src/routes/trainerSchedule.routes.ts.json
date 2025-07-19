@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/routes/trainerSchedule.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752751265960,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752751265960,
+            "name": "Commit-0",
+            "content": "// src/routes/trainerSchedule.routes.ts (create this new file)\r\nimport express from 'express';\r\nimport { getTrainerSchedule, updateClass, cancelClass, createClass } from '../controllers/trainerSchedule.controller'; // Create this controller\r\n// Your existing auth middleware\r\n\r\nconst router = express.Router();\r\n\r\n// All these routes will implicitly use the trainer's ID from authMiddleware\r\nrouter.get('/my',  getTrainerSchedule);\r\nrouter.post('/', createClass); // Optional, based on trainer's permission\r\nrouter.patch('/:id', updateClass);\r\nrouter.delete('/:id', cancelClass);\r\n\r\nexport default router;"
+        }
+    ]
+}

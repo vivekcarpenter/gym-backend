@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/types/express.d.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752751552404,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752751552404,
+            "name": "Commit-0",
+            "content": "// gym-api/src/types/express.d.ts\r\n// Create this file if it doesn't exist.\r\n// If it exists, ensure it has the Express namespace extension.\r\n\r\nimport { Request } from 'express';\r\nimport { Role } from '@prisma/client'; // Import your Role enum from Prisma client\r\n\r\n// Extend the Express Request interface to include the user property\r\ndeclare global {\r\n  namespace Express {\r\n    interface Request {\r\n      user?: {\r\n        id: string; // This is the User.id\r\n        email: string;\r\n        role: Role;\r\n        clubId?: string;\r\n        profileType?: 'trainer' | 'member'; // 'trainer' if user is a trainer\r\n        profileId?: string;                 // The Trainer.id if user is a trainer\r\n        canCreateClasses?: boolean;         // Trainer.canCreateClasses\r\n      };\r\n    }\r\n  }\r\n}"
+        }
+    ]
+}

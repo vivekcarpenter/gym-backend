@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 24,
+            "activePatchIndex": 30,
             "patches": [
                 {
                     "date": 1752209752670,
@@ -104,6 +104,30 @@
                 {
                     "date": 1752529105999,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -313,9 +313,12 @@\n       where: { id },\r\n       include: {\r\n         trainer: true,\r\n         club: true,\r\n-        membership:true,\r\n+        membership: {\r\n+      orderBy: { startDate: 'desc' }, // Get most recent first\r\n+      take: 1,                        // Optional: only return one latest\r\n+    },\r\n       },\r\n     });\r\n \r\n       console.log('👨‍⚕️ Full member details:', member); // ✅ ADD THIS\r\n"
+                },
+                {
+                    "date": 1752844787471,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -244,15 +244,19 @@\n \r\n \r\n router.get('/', async (req, res) => {\r\n   try {\r\n-    const { tab = 'all', search = '', page = 1, limit = 10, clubId } = req.query;\r\n+    const { tab = 'all', search = '', page = 1, limit = 10, clubId, trainerId } = req.query;\r\n     const skip = (Number(page) - 1) * Number(limit);\r\n \r\n     let whereClause: any = {\r\n       clubId: String(clubId),\r\n     };\r\n \r\n+    if (trainerId) {\r\n+    whereClause.trainerId = trainerId; // ✅ FILTER BY TRAINER\r\n+  }\r\n+\r\n     if (search) {\r\n       whereClause.OR = [\r\n         { firstName: { contains: search, mode: 'insensitive' } },\r\n         { lastName: { contains: search, mode: 'insensitive' } },\r\n"
+                },
+                {
+                    "date": 1752846320431,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -399,8 +399,33 @@\n     return res.status(500).json({ error: 'Failed to update member' });\r\n   }\r\n });\r\n \r\n+// GET /api/members/:id/sessions - All attendance sessions for a member\r\n+router.get('/:id/sessions', async (req, res) => {\r\n+  const { id } = req.params;\r\n \r\n+  try {\r\n+    const attendanceRecords = await prisma.attendance.findMany({\r\n+      where: { memberId: id },\r\n+      orderBy: { markedAt: 'desc' },\r\n+      include: {\r\n+        schedule: {\r\n+          include: {\r\n+            trainer: { select: { name: true } },\r\n+            location: { select: { name: true } }\r\n+          }\r\n+        }\r\n+      }\r\n+    });\r\n \r\n+    res.json(attendanceRecords);\r\n+  } catch (err) {\r\n+    console.error('Error fetching session history:', err);\r\n+    res.status(500).json({ error: 'Failed to fetch session history' });\r\n+  }\r\n+});\r\n \r\n+\r\n+\r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752859795560,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,9 @@\n //src>routes>member.routes.ts\r\n import express from 'express';\r\n import { PrismaClient } from '@prisma/client';\r\n import { Request, Response } from 'express';\r\n+import { getMembersByTrainer } from '../controllers/member.controller';\r\n \r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n@@ -424,8 +425,8 @@\n     res.status(500).json({ error: 'Failed to fetch session history' });\r\n   }\r\n });\r\n \r\n+router.get('/', getMembersByTrainer);\r\n \r\n \r\n-\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752859928992,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -425,8 +425,9 @@\n     res.status(500).json({ error: 'Failed to fetch session history' });\r\n   }\r\n });\r\n \r\n-router.get('/', getMembersByTrainer);\r\n+router.get('/by-trainer', getMembersByTrainer); // ✅ safer route\r\n \r\n \r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752859935048,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -425,9 +425,9 @@\n     res.status(500).json({ error: 'Failed to fetch session history' });\r\n   }\r\n });\r\n \r\n-router.get('/by-trainer', getMembersByTrainer); // ✅ safer route\r\n+router.get('/by-trainer', getMembersByTrainer); \r\n \r\n \r\n \r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752860135837,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -6,8 +6,10 @@\n \r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n \r\n+router.get('/by-trainer', getMembersByTrainer); \r\n+\r\n router.post('/', async (req, res) => {\r\n   try {\r\n     const {\r\n       firstName, lastName, email, phone, work, dateOfBirth, gender, avatar,\r\n@@ -425,9 +427,9 @@\n     res.status(500).json({ error: 'Failed to fetch session history' });\r\n   }\r\n });\r\n \r\n-router.get('/by-trainer', getMembersByTrainer); \r\n \r\n \r\n \r\n+\r\n export default router;\r\n"
                 }
             ],
             "date": 1752209752670,
