@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 5,
+            "activePatchIndex": 7,
             "patches": [
                 {
                     "date": 1752450841096,
@@ -28,6 +28,14 @@
                 {
                     "date": 1752834019168,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,6 +11,6 @@\n               \r\n \r\n \r\n router.get('/schedule/:scheduleId', authMiddleware, getAttendanceForSchedule); // Get attendance for a specific class\r\n-router.post('/attendance', authMiddleware, markAttendance); // Mark attendance (bulk)\r\n+router.post('/', authMiddleware, markAttendance); // Mark attendance (bulk)\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1753037977962,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,9 +8,40 @@\n \r\n const router = express.Router();\r\n \r\n               \r\n+router.get('/today', async (req, res) => {\r\n+  const { clubId } = req.query;\r\n \r\n+  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });\r\n \r\n+  const startOfDay = new Date();\r\n+  startOfDay.setHours(0, 0, 0, 0);\r\n+\r\n+  const endOfDay = new Date();\r\n+  endOfDay.setHours(23, 59, 59, 999);\r\n+\r\n+  try {\r\n+    const count = await prisma.attendance.count({\r\n+      where: {\r\n+        clubId: String(clubId),\r\n+        markedAt: {\r\n+          gte: startOfDay,\r\n+          lte: endOfDay,\r\n+        },\r\n+      },\r\n+    });\r\n+\r\n+    res.json({ count });\r\n+  } catch (err) {\r\n+    console.error('Today attendance error:', err);\r\n+    res.status(500).json({ error: 'Failed to fetch attendance' });\r\n+  }\r\n+});\r\n+\r\n+\r\n+\r\n router.get('/schedule/:scheduleId', authMiddleware, getAttendanceForSchedule); // Get attendance for a specific class\r\n router.post('/', authMiddleware, markAttendance); // Mark attendance (bulk)\r\n+\r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1753038217386,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,11 +4,12 @@\n   getAttendanceForSchedule,\r\n   markAttendance,\r\n } from '../controllers/attendance.controller';\r\n import { authMiddleware } from '../middlewares/authMiddleware';\r\n+import { PrismaClient } from '@prisma/client';\r\n \r\n const router = express.Router();\r\n-\r\n+const prisma = new PrismaClient();\r\n               \r\n router.get('/today', async (req, res) => {\r\n   const { clubId } = req.query;\r\n \r\n"
                 }
             ],
             "date": 1752450841095,

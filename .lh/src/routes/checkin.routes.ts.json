@@ -1,0 +1,30 @@
+{
+    "sourceFile": "src/routes/checkin.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 3,
+            "patches": [
+                {
+                    "date": 1752936795297,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752939141789,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,10 +1,12 @@\n // src/routes/checkin.routes.ts\r\n import express from 'express';\r\n-import { getTodayLogs } from '../controllers/checkin.controller';\r\n+import { getTodayLogs, manualCheckIn } from '../controllers/checkin.controller';\r\n import { authMiddleware } from '../middlewares/authMiddleware';\r\n \r\n const router = express.Router();\r\n \r\n router.get('/logs/today', authMiddleware, getTodayLogs);\r\n \r\n+router.post('/manual', authMiddleware, manualCheckIn);\r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1753004887537,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,5 +8,31 @@\n router.get('/logs/today', authMiddleware, getTodayLogs);\r\n \r\n router.post('/manual', authMiddleware, manualCheckIn);\r\n \r\n+\r\n+router.get('/', authMiddleware, async (req, res) => {\r\n+  const { clubId, since = '24h' } = req.query;\r\n+\r\n+  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });\r\n+\r\n+  const hours = parseInt(String(since).replace('h', '')) || 24;\r\n+  const sinceDate = new Date(Date.now() - hours * 60 * 60 * 1000);\r\n+\r\n+  try {\r\n+    const count = await prisma.attendance.count({\r\n+      where: {\r\n+        clubId: String(clubId),\r\n+        markedAt: { gte: sinceDate },\r\n+        status: 'present',\r\n+      },\r\n+    });\r\n+\r\n+    res.json({ count });\r\n+  } catch (error) {\r\n+    console.error('Error counting check-ins:', error);\r\n+    res.status(500).json({ error: 'Failed to fetch check-in count' });\r\n+  }\r\n+});\r\n+\r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1753007013706,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,10 +1,12 @@\n // src/routes/checkin.routes.ts\r\n import express from 'express';\r\n import { getTodayLogs, manualCheckIn } from '../controllers/checkin.controller';\r\n import { authMiddleware } from '../middlewares/authMiddleware';\r\n+import { PrismaClient } from '@prisma/client';\r\n \r\n const router = express.Router();\r\n+const prisma = new PrismaClient();\r\n \r\n router.get('/logs/today', authMiddleware, getTodayLogs);\r\n \r\n router.post('/manual', authMiddleware, manualCheckIn);\r\n"
+                }
+            ],
+            "date": 1752936795296,
+            "name": "Commit-0",
+            "content": "// src/routes/checkin.routes.ts\r\nimport express from 'express';\r\nimport { getTodayLogs } from '../controllers/checkin.controller';\r\nimport { authMiddleware } from '../middlewares/authMiddleware';\r\n\r\nconst router = express.Router();\r\n\r\nrouter.get('/logs/today', authMiddleware, getTodayLogs);\r\n\r\nexport default router;\r\n"
+        }
+    ]
+}

@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 11,
+            "activePatchIndex": 12,
             "patches": [
                 {
                     "date": 1752451240563,
@@ -52,6 +52,10 @@
                 {
                     "date": 1752811150740,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -147,9 +147,9 @@\n           email,\r\n           phone,\r\n           specialization,\r\n           club: { connect: { id: clubId } },\r\n-          userId: user.id, // <-- CRUCIAL: Link the Trainer to the User's ID\r\n+          \r\n           user: { connect: { id: user.id } } // Explicitly connect the user relation\r\n         },\r\n       });\r\n \r\n"
+                },
+                {
+                    "date": 1752900423043,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,54 +14,9 @@\n     clubId?: string;\r\n     role: string;\r\n   };\r\n }\r\n-// export const getTrainersByFranchise = async (req: Request, res: Response) => {\r\n-//   const { franchiseId } = req.params;\r\n \r\n-//   try {\r\n-//     const trainers = await prisma.trainer.findMany({\r\n-//       where: {\r\n-//         clubId: franchiseId, // ✅ This matches your schema\r\n-//       },\r\n-//       select: {\r\n-//         id: true,\r\n-//         name: true,\r\n-//         email: true,\r\n-//       },\r\n-//     });\r\n-\r\n-//     res.json(trainers);\r\n-//   } catch (error) {\r\n-//     console.error('Error fetching trainers:', error);\r\n-//     res.status(500).json({ error: 'Error fetching trainers' });\r\n-//   }\r\n-// };\r\n-\r\n-// export const getTrainersByFranchise = async (req: Request, res: Response) => {\r\n-//   const { clubId } = req.params; // Changed to clubId to match common naming\r\n-\r\n-//   try {\r\n-//     const trainers = await prisma.trainer.findMany({\r\n-//       where: {\r\n-//         clubId: clubId,\r\n-//       },\r\n-//       select: {\r\n-//         id: true,\r\n-//         name: true,\r\n-//         email: true,\r\n-//         phone: true,\r\n-//         specialization: true\r\n-//       },\r\n-//     });\r\n-//     res.json(trainers);\r\n-//   } catch (error) {\r\n-//     console.error('Error fetching trainers:', error);\r\n-//     res.status(500).json({ error: 'Error fetching trainers' });\r\n-//   }\r\n-// };\r\n-\r\n-\r\n export const getTrainersByFranchise = async (req: AuthenticatedRequest, res: Response) => {\r\n   const { franchiseId } = req.params; // This is the clubId\r\n   const userClubId = req.user?.clubId;\r\n   const userRole = req.user?.role;\r\n"
                 }
             ],
             "date": 1752451240563,

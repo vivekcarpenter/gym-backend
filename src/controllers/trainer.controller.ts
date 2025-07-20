@@ -15,51 +15,6 @@ interface AuthenticatedRequest extends Request {
     role: string;
   };
 }
-// export const getTrainersByFranchise = async (req: Request, res: Response) => {
-//   const { franchiseId } = req.params;
-
-//   try {
-//     const trainers = await prisma.trainer.findMany({
-//       where: {
-//         clubId: franchiseId, // ✅ This matches your schema
-//       },
-//       select: {
-//         id: true,
-//         name: true,
-//         email: true,
-//       },
-//     });
-
-//     res.json(trainers);
-//   } catch (error) {
-//     console.error('Error fetching trainers:', error);
-//     res.status(500).json({ error: 'Error fetching trainers' });
-//   }
-// };
-
-// export const getTrainersByFranchise = async (req: Request, res: Response) => {
-//   const { clubId } = req.params; // Changed to clubId to match common naming
-
-//   try {
-//     const trainers = await prisma.trainer.findMany({
-//       where: {
-//         clubId: clubId,
-//       },
-//       select: {
-//         id: true,
-//         name: true,
-//         email: true,
-//         phone: true,
-//         specialization: true
-//       },
-//     });
-//     res.json(trainers);
-//   } catch (error) {
-//     console.error('Error fetching trainers:', error);
-//     res.status(500).json({ error: 'Error fetching trainers' });
-//   }
-// };
-
 
 export const getTrainersByFranchise = async (req: AuthenticatedRequest, res: Response) => {
   const { franchiseId } = req.params; // This is the clubId

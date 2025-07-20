@@ -3,11 +3,19 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1752585169194,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1753037993969,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,5 +4,25 @@\n const router = express.Router();\r\n \r\n router.get('/', getDevicesByClub);\r\n \r\n+router.get('/status', async (req, res) => {\r\n+  const { clubId } = req.query;\r\n+  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });\r\n+\r\n+  try {\r\n+    const count = await prisma.device.count({\r\n+      where: {\r\n+        clubId: String(clubId),\r\n+        status: 'connected', // Assuming there's a `status` field\r\n+      },\r\n+    });\r\n+\r\n+    res.json({ count });\r\n+  } catch (err) {\r\n+    console.error('Device status error:', err);\r\n+    res.status(500).json({ error: 'Failed to fetch device status' });\r\n+  }\r\n+});\r\n+\r\n+\r\n export default router;\r\n"
+                },
+                {
+                    "date": 1753038265332,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,10 @@\n import express from 'express';\r\n import { getDevicesByClub } from '../controllers/device.controller';\r\n+import { PrismaClient } from '@prisma/client';\r\n \r\n const router = express.Router();\r\n+const prisma = new PrismaClient();\r\n \r\n router.get('/', getDevicesByClub);\r\n \r\n router.get('/status', async (req, res) => {\r\n"
                 }
             ],
             "date": 1752585169194,

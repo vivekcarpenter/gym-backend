@@ -112,3 +112,52 @@ export const getMembersByTrainer = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+// GET /api/members/join-trend?clubId=...&range=30
+export const getMemberJoinTrend = async (req: Request, res: Response) => {
+  const { clubId, range } = req.query;
+  const days = parseInt(range as string) || 30;
+
+  if (!clubId) {
+    return res.status(400).json({ error: 'Missing clubId' });
+  }
+
+  const end = new Date();
+  const start = new Date();
+  start.setDate(end.getDate() - days);
+
+  try {
+    const members = await prisma.member.findMany({
+      where: {
+        clubId: String(clubId),
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+      select: { createdAt: true },
+    });
+
+    // Bucket by date
+    const countByDate: Record<string, number> = {};
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const key = d.toISOString().split('T')[0];
+      countByDate[key] = 0;
+    }
+
+    members.forEach((m) => {
+      const key = m.createdAt.toISOString().split('T')[0];
+      if (countByDate[key] !== undefined) countByDate[key]++;
+    });
+
+    const result = Object.entries(countByDate).map(([date, count]) => ({
+      date,
+      count,
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error('Join trend error:', err);
+    res.status(500).json({ error: 'Failed to fetch join trend' });
+  }
+};

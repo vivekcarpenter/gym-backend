@@ -1,6 +1,7 @@
 // gym-api/src/routes/schedule.routes.ts
 import { Router } from 'express';
-import { authMiddleware } from '../middlewares/authMiddleware'; // Your authentication middleware
+import { authMiddleware } from '../middlewares/authMiddleware'; 
+import { PrismaClient } from '@prisma/client';
 
 import {
   getTrainerSchedule,
@@ -14,6 +15,26 @@ import {
 } from '../controllers/schedule.controller'; // Import all consolidated controller functions
 
 const router = Router();
+const prisma = new PrismaClient();
+router.get('/', async (req, res) => {
+  const { limit = 5 } = req.query;
+
+  try {
+    const schedules = await prisma.classSchedule.findMany({
+      include: {
+        trainer: { select: { name: true } },
+        location: true,
+      },
+      orderBy: { date: 'desc' },
+      take: Number(limit),
+    });
+
+    res.json({ data: schedules });
+  } catch (err) {
+    console.error('Fetch schedule error:', err);
+    res.status(500).json({ error: 'Failed to fetch schedule' });
+  }
+});
 
 // ====================================================================================
 // --- TRAINER-SPECIFIC SCHEDULE ROUTES ---

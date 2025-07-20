@@ -1,0 +1,22 @@
+{
+    "sourceFile": "src/routes/task.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752944187640,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752985759084,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -6,7 +6,15 @@\n \r\n router.get('/', authMiddleware, getTasksForClub);\r\n router.post('/', authMiddleware, createTask);\r\n router.put('/:id', authMiddleware, updateTaskStatus);\r\n+\r\n+\r\n+// PUT /api/tasks/:id/complete - Mark task as complete (alternative endpoint)\r\n+router.put('/:id/complete', async (req, res) => {\r\n+  req.body.status = 'COMPLETED';\r\n+  return updateTaskStatus(req, res);\r\n+});\r\n+\r\n router.delete('/:id', authMiddleware, deleteTask);\r\n \r\n export default router;\r\n"
+                }
+            ],
+            "date": 1752944187640,
+            "name": "Commit-0",
+            "content": "import express from 'express';\r\nimport { createTask, getTasksForClub, updateTaskStatus, deleteTask } from '../controllers/task.controller';\r\nimport { authMiddleware } from '../middlewares/authMiddleware';\r\n\r\nconst router = express.Router();\r\n\r\nrouter.get('/', authMiddleware, getTasksForClub);\r\nrouter.post('/', authMiddleware, createTask);\r\nrouter.put('/:id', authMiddleware, updateTaskStatus);\r\nrouter.delete('/:id', authMiddleware, deleteTask);\r\n\r\nexport default router;\r\n"
+        }
+    ]
+}

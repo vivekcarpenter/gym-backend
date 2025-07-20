@@ -19,6 +19,12 @@ import permissionRoutes from './routes/permission.routes';
 import trainingRoutes from './routes/training.routes';
 import crmRoutes from './routes/crm.routes';
 import locationRoutes from './routes/location.routes';
+import staffRoutes from './routes/staff.routes'
+import posRoutes from './routes/pos.routes'
+import checkinRoutes from './routes/checkin.routes'
+import taskRoutes from './routes/task.routes';
+
+
 
 
 dotenv.config();
@@ -45,6 +51,10 @@ app.use('/api/permissions', permissionRoutes);
 app.use('/api/training-resources', trainingRoutes);
 app.use('/api/crm', crmRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/staff', staffRoutes);
+app.use('/api/products', posRoutes)
+app.use('/api/checkin', checkinRoutes);
+app.use('/api/tasks', taskRoutes);
 
 
 

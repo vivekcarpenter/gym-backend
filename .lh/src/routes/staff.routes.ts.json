@@ -1,0 +1,26 @@
+{
+    "sourceFile": "src/routes/staff.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1752901091177,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752901401043,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,9 +2,9 @@\n import express from 'express';\r\n import { inviteStaff } from '../controllers/staff.controller'; // Import the new inviteStaff controller\r\n import { getAllStaffForFranchise } from '../controllers/staff.controller'; // Assuming you have this\r\n import { authMiddleware } from '../middlewares/authMiddleware'; // Your authentication middleware\r\n-import { authorize } from '../middlewares/permission.middleware'; // Your authorization middleware\r\n+import { authorize } from '../middlewares/permission'; // Your authorization middleware\r\n \r\n const router = express.Router();\r\n \r\n // Route to invite new staff members\r\n"
+                },
+                {
+                    "date": 1752913126243,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -16,9 +16,9 @@\n );\r\n \r\n // Route to get all staff for a franchise\r\n router.get(\r\n-  '/staff',\r\n+  '/',\r\n   authMiddleware,\r\n   authorize(['franchise_admin']), // Only franchise_admin can view staff\r\n   getAllStaffForFranchise // This controller needs to filter by clubId and roles\r\n );\r\n"
+                }
+            ],
+            "date": 1752901091177,
+            "name": "Commit-0",
+            "content": "// src/routes/staff.routes.ts (Extend this file or create a new one)\r\nimport express from 'express';\r\nimport { inviteStaff } from '../controllers/staff.controller'; // Import the new inviteStaff controller\r\nimport { getAllStaffForFranchise } from '../controllers/staff.controller'; // Assuming you have this\r\nimport { authMiddleware } from '../middlewares/authMiddleware'; // Your authentication middleware\r\nimport { authorize } from '../middlewares/permission.middleware'; // Your authorization middleware\r\n\r\nconst router = express.Router();\r\n\r\n// Route to invite new staff members\r\nrouter.post(\r\n  '/staff/invite',\r\n  authMiddleware,\r\n  authorize(['franchise_admin']), // Only franchise_admin can invite staff\r\n  inviteStaff\r\n);\r\n\r\n// Route to get all staff for a franchise\r\nrouter.get(\r\n  '/staff',\r\n  authMiddleware,\r\n  authorize(['franchise_admin']), // Only franchise_admin can view staff\r\n  getAllStaffForFranchise // This controller needs to filter by clubId and roles\r\n);\r\n\r\nexport default router;"
+        }
+    ]
+}

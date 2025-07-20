@@ -212,6 +212,38 @@ router.get('/members', async (req, res) => {
   }
 });
 
+// GET /api/billing/recent?limit=5
+router.get('/recent', async (req, res) => {
+  const limit = parseInt(req.query.limit as string) || 5;
+
+  try {
+    const invoices = await prisma.invoice.findMany({
+      orderBy: { issuedAt: 'desc' },
+      take: limit,
+      include: {
+        member: {
+          select: { firstName: true, lastName: true },
+        },
+      },
+    });
+
+    const result = invoices.map((inv) => ({
+      id: inv.id,
+      memberName: `${inv.member.firstName} ${inv.member.lastName}`,
+      amount: inv.amount,
+      status: inv.status,
+      issuedAt: inv.issuedAt,
+      dueDate: inv.dueDate,
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error('Error fetching recent invoices:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 export default router;
 
 

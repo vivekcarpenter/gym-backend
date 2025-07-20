@@ -3,9 +3,86 @@ import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
 import { getMembersByTrainer } from '../controllers/member.controller';
+import { getMemberJoinTrend } from '../controllers/member.controller';
 
 const router = express.Router();
 const prisma = new PrismaClient();
+
+
+
+router.get('/join-trend', getMemberJoinTrend);
+
+router.get('/count', async (req, res) => {
+  try {
+    const count = await prisma.member.count({
+      where: { memberType: 'member' },
+    });
+    res.json({ count });
+  } catch (err) {
+    console.error('Error fetching member count:', err);
+    res.status(500).json({ error: 'Failed to fetch member count' });
+  }
+});
+
+
+
+router.get('/search', async (req, res) => {
+  const { q = '', clubId } = req.query;
+
+  if (!clubId) {
+    return res.status(400).json({ error: 'Missing clubId' });
+  }
+
+  try {
+    let members;
+
+    if (q.length === 0) {
+      // Return recent active members when no query provided
+      members = await prisma.member.findMany({
+        where: {
+          clubId: String(clubId),
+          memberType: 'member',
+        },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          keyFob: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      });
+    } else {
+      // Perform filtered search
+      members = await prisma.member.findMany({
+        where: {
+          clubId: String(clubId),
+          OR: [
+            { firstName: { contains: String(q), mode: 'insensitive' } },
+            { lastName: { contains: String(q), mode: 'insensitive' } },
+            { email: { contains: String(q), mode: 'insensitive' } },
+            { keyFob: { contains: String(q), mode: 'insensitive' } },
+          ],
+        },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          keyFob: true,
+        },
+        take: 15,
+      });
+    }
+
+    res.json(members);
+  } catch (err) {
+    console.error('Search Error:', err);
+    res.status(500).json({ error: 'Failed to search members' });
+  }
+});
+
 
 router.get('/by-trainer', getMembersByTrainer); 
 
@@ -69,7 +146,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Add membership to a Member
+
 
 // router.post('/:id/membership', async (req, res) => {
 //   try {
@@ -311,6 +388,34 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/upcoming-renewals', async (req, res) => {
+  const { clubId, days = 7 } = req.query;
+
+  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });
+
+  const upcomingDate = new Date();
+  upcomingDate.setDate(upcomingDate.getDate() + Number(days));
+
+  try {
+    const count = await prisma.membership.count({
+      where: {
+        member: { clubId: String(clubId) },
+        endDate: {
+          gte: new Date(),
+          lte: upcomingDate,
+        },
+        status: 'active',
+      },
+    });
+
+    res.json({ count });
+  } catch (error) {
+    console.error('Error fetching upcoming renewals:', error);
+    res.status(500).json({ error: 'Failed to fetch upcoming renewals' });
+  }
+});
+
+
 // GET /api/members/:id
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
@@ -427,6 +532,83 @@ router.get('/:id/sessions', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch session history' });
   }
 });
+
+// GET /api/members/join-trend
+router.get('/join-trend', async (req, res) => {
+  const { clubId } = req.query;
+
+  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });
+
+  try {
+    const result = await prisma.member.groupBy({
+      by: ['joiningDate'],
+      where: {
+        clubId: String(clubId),
+        memberType: 'member',
+        joiningDate: {
+          not: null,
+        },
+      },
+      _count: {
+        _all: true,
+      },
+      orderBy: {
+        joiningDate: 'asc',
+      },
+    });
+
+    const trend = result.map((r) => ({
+      date: r.joiningDate.toISOString().split('T')[0],
+      count: r._count._all,
+    }));
+
+    res.json(trend);
+  } catch (err) {
+    console.error('Join trend error:', err);
+    res.status(500).json({ error: 'Failed to fetch join trend' });
+  }
+});
+
+
+// GET /api/billing/revenue-trend
+router.get('/revenue-trend', async (req, res) => {
+  const { clubId } = req.query;
+
+  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });
+
+  try {
+    const results = await prisma.invoice.groupBy({
+      by: ['issuedAt'],
+      where: {
+        clubId: String(clubId),
+        status: 'paid',
+      },
+      _sum: {
+        amount: true,
+      },
+      orderBy: {
+        issuedAt: 'asc',
+      },
+    });
+
+    const trend = results.map((r) => ({
+      date: r.issuedAt.toISOString().split('T')[0],
+      revenue: r._sum.amount ?? 0,
+    }));
+
+    res.json(trend);
+  } catch (err) {
+    console.error('Revenue trend error:', err);
+    res.status(500).json({ error: 'Failed to fetch revenue trend' });
+  }
+});
+
+
+
+
+
+
+
 
 
 

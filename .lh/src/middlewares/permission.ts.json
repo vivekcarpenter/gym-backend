@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/middlewares/permission.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752901272380,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752901272379,
+            "name": "Commit-0",
+            "content": "// src/middlewares/permission.ts\r\nimport { Request, Response, NextFunction } from 'express';\r\nimport { Role } from '@prisma/client'; // Import the Role enum from Prisma client\r\n\r\n// Interface to ensure `req.user` is defined by authMiddleware\r\ninterface AuthenticatedRequest extends Request {\r\n  user?: {\r\n    id: string;\r\n    email: string;\r\n    role: Role; // Explicitly use the imported Role enum\r\n    clubId?: string;\r\n    // ... other properties you attach to req.user\r\n  };\r\n}\r\n\r\n/**\r\n * Authorization middleware to check if the authenticated user's role\r\n * is among the allowed roles for a given route.\r\n *\r\n * @param allowedRoles An array of roles that are permitted to access the route.\r\n */\r\nexport const authorize = (allowedRoles: Role[]) => {\r\n  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {\r\n    // 1. Ensure user is authenticated (authMiddleware should run before this)\r\n    if (!req.user) {\r\n      // This should ideally not happen if authMiddleware runs first\r\n      return res.status(401).json({ error: 'Authentication required.' });\r\n    }\r\n\r\n    const userRole = req.user.role;\r\n\r\n    // 2. Check if the user's role is in the list of allowed roles\r\n    if (allowedRoles.includes(userRole)) {\r\n      // User has the necessary permission, proceed to the next middleware/route handler\r\n      next();\r\n    } else {\r\n      // User does not have the required permission\r\n      console.warn(`Access denied: User with role '${userRole}' attempted to access a restricted resource.`);\r\n      return res.status(403).json({ error: 'Access denied. You do not have permission to perform this action.' });\r\n    }\r\n  };\r\n};"
+        }
+    ]
+}

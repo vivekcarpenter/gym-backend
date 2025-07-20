@@ -264,9 +264,17 @@ export const getClassesByAdmin = async (req: AuthenticatedRequest, res: Response
       include: {
         trainer: { select: { id: true, name: true } }, // Include trainer ID and name
         bookings: {
-          where: { status: 'confirmed' },
-          select: { id: true }
-        },
+  where: { status: 'confirmed' },
+  include: {
+    member: {
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true
+      }
+    }
+  }
+},
         attendances: {
           select: { id: true, status: true }
         },

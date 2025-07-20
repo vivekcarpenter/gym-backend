@@ -17,11 +17,15 @@ datasource db {
 model User {
   id       String  @id @default(cuid())
   email    String  @unique
-  password String
+  password String?
   role     Role
   clubId   String?
   club     Club?   @relation(fields: [clubId], references: [id])
   name     String?
+
+  setupPasswordToken      String?       @unique // Token for setting initial password
+  setupPasswordExpires    DateTime?     // Expiry for the token
+  status                  UserStatus    @default(PENDING) // New status for account lifecycle
 
   assignedLeads Lead[]
 
@@ -30,7 +34,22 @@ model User {
 
   // Explicit 1:1 relation to Member profile
   memberProfile  Member?  @relation(name: "UserToMember")
+
+  productTransactions ProductTransaction[]
+
+  markedAttendances Attendance[] @relation("MarkedByRelation")
+
+  assignedTasks     Task[] @relation("AssignedTasks")     // tasks assigned to this user
+  tasksAssignedByMe Task[] @relation("AssignedByTasks")   // tasks created by this user
+
 }
+
+enum UserStatus {
+  PENDING   // Account created, invite email sent, password not set
+  ACTIVE    // Password set, account active, can log in
+  INACTIVE  // Account disabled (e.g., by super_admin or franchise_admin)
+}
+
 
 model Club {
   id        String     @id @default(uuid())
@@ -53,6 +72,11 @@ model Club {
   status String @default("active")
 
   leads     Lead[]
+
+  productTransactions ProductTransaction[]
+
+  checkins Attendance[] @relation("ClubCheckinRelation")
+
 }
 
 model Trainer {
@@ -135,8 +159,8 @@ model Member {
   doctorContact     String?
   lastExamDate      DateTime?
 
-  clubId String
-  club   Club   @relation(fields: [clubId], references: [id])
+  clubId           String
+  club             Club   @relation(fields: [clubId], references: [id])
 
   trainerId String? // optional
   trainer   Trainer? @relation(fields: [trainerId], references: [id])
@@ -278,16 +302,22 @@ model Location {
 
 model Attendance {
   id         String   @id @default(cuid())
-  scheduleId String
+  scheduleId String?
   memberId   String
-  status      AttendanceStatus // Enum: 'present', 'absent'
+  status      AttendanceStatus 
   markedAt   DateTime @default(now())
+  markedById  String?
+  clubId      String? 
 
-  schedule ClassSchedule @relation(fields: [scheduleId], references: [id])
+  schedule ClassSchedule? @relation(fields: [scheduleId], references: [id])
   member   Member        @relation(fields: [memberId], references: [id])
+  markedBy User?         @relation("MarkedByRelation", fields: [markedById], references: [id])
+  club     Club?         @relation("ClubCheckinRelation", fields: [clubId], references: [id])
+
 
   @@unique([memberId, scheduleId])
   @@index([scheduleId])
+  @@index([markedAt])
 }
 
 enum AttendanceStatus {
@@ -392,4 +422,72 @@ enum LeadStatus {
   SCHEDULED
   CONVERTED
 }
+
+model Product {
+  id        String   @id @default(cuid())
+  name      String
+  category  String
+  price     Float
+  stock     Int
+  clubId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactionItems ProductTransactionItem[]
+
+  @@index([clubId])
+  @@index([category])
+
+}
+
+model ProductTransaction {
+  id         String   @id @default(cuid())
+  staffId    String   // FK to User
+  clubId     String
+  club        Club    @relation(fields: [clubId], references: [id]) // if needed
+  total      Float
+  method     String   // "cash" | "card"
+  createdAt  DateTime @default(now())
+
+  staff       User                     @relation(fields: [staffId], references: [id])
+  items ProductTransactionItem[]
+
+  @@index([staffId])
+  @@index([clubId])
+  @@index([createdAt])
+}
+model ProductTransactionItem {
+  id              String   @id @default(cuid())
+  transactionId   String
+  productId       String
+  quantity        Int
+  unitPrice       Float
+
+  transaction ProductTransaction @relation(fields: [transactionId], references: [id])
+  product     Product            @relation(fields: [productId], references: [id])
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(PENDING)
+  dueDate     DateTime
+  assignedTo  String
+  assignedBy  String
+  clubId      String
+  createdAt   DateTime @default(now())
+
+  staff       User     @relation("AssignedTasks", fields: [assignedTo], references: [id])
+  assignedByUser User  @relation("AssignedByTasks", fields: [assignedBy], references: [id])
+
+  @@index([assignedTo])
+  @@index([clubId])
+}
+
+enum TaskStatus {
+  PENDING
+  COMPLETED
+}
+
 

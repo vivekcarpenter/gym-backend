@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 13,
+            "activePatchIndex": 14,
             "patches": [
                 {
                     "date": 1752358300670,
@@ -60,6 +60,10 @@
                 {
                     "date": 1752530760661,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -180,39 +180,39 @@\n     res.status(500).json({ error: 'Failed to calculate summary' });\r\n   }\r\n });\r\n \r\n-// GET /api/billing/members?clubId=...&membershipType=...\r\n router.get('/members', async (req, res) => {\r\n   const { clubId, membershipType } = req.query;\r\n \r\n-  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });\r\n+  if (!clubId) {\r\n+    return res.status(400).json({ error: 'clubId is required' });\r\n+  }\r\n \r\n   try {\r\n     const members = await prisma.member.findMany({\r\n       where: {\r\n         clubId: String(clubId),\r\n         ...(membershipType && { memberType: String(membershipType) }),\r\n       },\r\n-      select: {\r\n-        id: true,\r\n-        firstName: true,\r\n-        lastName: true,\r\n-        memberType: true,\r\n-        createdAt: true,\r\n-      },\r\n       orderBy: { createdAt: 'desc' },\r\n     });\r\n \r\n-    res.json(members);\r\n+    const response = members.map((m) => ({\r\n+      id: m.id,\r\n+      firstName: m.firstName,\r\n+      lastName: m.lastName,\r\n+      memberType: m.memberType,\r\n+      createdAt: m.createdAt,\r\n+    }));\r\n+\r\n+    res.json(response);\r\n   } catch (err) {\r\n-    console.error('Membership Report fetch error:', err);\r\n-    res.status(500).json({ error: 'Failed to fetch membership report' });\r\n+    console.error('Fetch members error:', err);\r\n+    res.status(500).json({ error: 'Failed to fetch members' });\r\n   }\r\n });\r\n \r\n-\r\n-\r\n export default router;\r\n \r\n \r\n \r\n"
+                },
+                {
+                    "date": 1753044713614,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -211,8 +211,40 @@\n     res.status(500).json({ error: 'Failed to fetch members' });\r\n   }\r\n });\r\n \r\n+// GET /api/billing/recent?limit=5\r\n+router.get('/recent', async (req, res) => {\r\n+  const limit = parseInt(req.query.limit as string) || 5;\r\n+\r\n+  try {\r\n+    const invoices = await prisma.invoice.findMany({\r\n+      orderBy: { issuedAt: 'desc' },\r\n+      take: limit,\r\n+      include: {\r\n+        member: {\r\n+          select: { firstName: true, lastName: true },\r\n+        },\r\n+      },\r\n+    });\r\n+\r\n+    const result = invoices.map((inv) => ({\r\n+      id: inv.id,\r\n+      memberName: `${inv.member.firstName} ${inv.member.lastName}`,\r\n+      amount: inv.amount,\r\n+      status: inv.status,\r\n+      issuedAt: inv.issuedAt,\r\n+      dueDate: inv.dueDate,\r\n+    }));\r\n+\r\n+    res.json(result);\r\n+  } catch (err) {\r\n+    console.error('Error fetching recent invoices:', err);\r\n+    res.status(500).json({ error: 'Internal server error' });\r\n+  }\r\n+});\r\n+\r\n+\r\n export default router;\r\n \r\n \r\n \r\n"
                 }
             ],
             "date": 1752358300670,

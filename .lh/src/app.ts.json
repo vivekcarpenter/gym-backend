@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 38,
+            "activePatchIndex": 47,
             "patches": [
                 {
                     "date": 1752122083348,
@@ -160,6 +160,42 @@
                 {
                     "date": 1752896869052,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -36,9 +36,9 @@\n app.use('/api/schedule', scheduleRoutes);\r\n app.use('/api/classes', classRoutes);\r\n app.use('/api/bookings', bookingRoutes);\r\n app.use('/api/attendance', attendanceRoutes);\r\n-app.use('/api/communications', communicationRoutes);\r\n+app.use('/api/communication', communicationRoutes);\r\n app.use('/api/clubs', clubRoutes);\r\n app.use('/api/users', userRoutes);\r\n app.use('/api/devices', deviceRoutes);\r\n app.use('/api/permissions', permissionRoutes);\r\n"
+                },
+                {
+                    "date": 1752901568018,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,8 +18,9 @@\n import permissionRoutes from './routes/permission.routes';\r\n import trainingRoutes from './routes/training.routes';\r\n import crmRoutes from './routes/crm.routes';\r\n import locationRoutes from './routes/location.routes';\r\n+import staffRoutes from './routes/staff.routes'\r\n \r\n \r\n dotenv.config();\r\n const app = express();\r\n"
+                },
+                {
+                    "date": 1752901591830,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -45,8 +45,9 @@\n app.use('/api/permissions', permissionRoutes);\r\n app.use('/api/training-resources', trainingRoutes);\r\n app.use('/api/crm', crmRoutes);\r\n app.use('/api/locations', locationRoutes);\r\n+app.use('/api/staff', staffRoutes);\r\n \r\n \r\n \r\n app.get('/', (req, res) => {\r\n"
+                },
+                {
+                    "date": 1752901798525,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -45,9 +45,9 @@\n app.use('/api/permissions', permissionRoutes);\r\n app.use('/api/training-resources', trainingRoutes);\r\n app.use('/api/crm', crmRoutes);\r\n app.use('/api/locations', locationRoutes);\r\n-app.use('/api/staff', staffRoutes);\r\n+app.use('/api', staffRoutes);\r\n \r\n \r\n \r\n app.get('/', (req, res) => {\r\n"
+                },
+                {
+                    "date": 1752909995698,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -45,9 +45,9 @@\n app.use('/api/permissions', permissionRoutes);\r\n app.use('/api/training-resources', trainingRoutes);\r\n app.use('/api/crm', crmRoutes);\r\n app.use('/api/locations', locationRoutes);\r\n-app.use('/api', staffRoutes);\r\n+app.use('/api/products', staffRoutes);\r\n \r\n \r\n \r\n app.get('/', (req, res) => {\r\n"
+                },
+                {
+                    "date": 1752910404285,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,8 +19,9 @@\n import trainingRoutes from './routes/training.routes';\r\n import crmRoutes from './routes/crm.routes';\r\n import locationRoutes from './routes/location.routes';\r\n import staffRoutes from './routes/staff.routes'\r\n+import posRoutes from './routes/pos.routes'\r\n \r\n \r\n dotenv.config();\r\n const app = express();\r\n@@ -45,9 +46,10 @@\n app.use('/api/permissions', permissionRoutes);\r\n app.use('/api/training-resources', trainingRoutes);\r\n app.use('/api/crm', crmRoutes);\r\n app.use('/api/locations', locationRoutes);\r\n-app.use('/api/products', staffRoutes);\r\n+app.use('/api/staff', staffRoutes);\r\n+app.use('/api/products', posRoutes)\r\n \r\n \r\n \r\n app.get('/', (req, res) => {\r\n"
+                },
+                {
+                    "date": 1752910772458,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,9 +19,8 @@\n import trainingRoutes from './routes/training.routes';\r\n import crmRoutes from './routes/crm.routes';\r\n import locationRoutes from './routes/location.routes';\r\n import staffRoutes from './routes/staff.routes'\r\n-import posRoutes from './routes/pos.routes'\r\n \r\n \r\n dotenv.config();\r\n const app = express();\r\n@@ -47,9 +46,8 @@\n app.use('/api/training-resources', trainingRoutes);\r\n app.use('/api/crm', crmRoutes);\r\n app.use('/api/locations', locationRoutes);\r\n app.use('/api/staff', staffRoutes);\r\n-app.use('/api/products', posRoutes)\r\n \r\n \r\n \r\n app.get('/', (req, res) => {\r\n"
+                },
+                {
+                    "date": 1752910831660,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,8 +19,9 @@\n import trainingRoutes from './routes/training.routes';\r\n import crmRoutes from './routes/crm.routes';\r\n import locationRoutes from './routes/location.routes';\r\n import staffRoutes from './routes/staff.routes'\r\n+import posRoutes from './routes/pos.routes'\r\n \r\n \r\n dotenv.config();\r\n const app = express();\r\n@@ -46,8 +47,9 @@\n app.use('/api/training-resources', trainingRoutes);\r\n app.use('/api/crm', crmRoutes);\r\n app.use('/api/locations', locationRoutes);\r\n app.use('/api/staff', staffRoutes);\r\n+app.use('/api/products', posRoutes)\r\n \r\n \r\n \r\n app.get('/', (req, res) => {\r\n"
+                },
+                {
+                    "date": 1752936855411,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -20,8 +20,9 @@\n import crmRoutes from './routes/crm.routes';\r\n import locationRoutes from './routes/location.routes';\r\n import staffRoutes from './routes/staff.routes'\r\n import posRoutes from './routes/pos.routes'\r\n+import checkinRoutes from './routes/checkin.routes'\r\n \r\n \r\n dotenv.config();\r\n const app = express();\r\n@@ -48,8 +49,9 @@\n app.use('/api/crm', crmRoutes);\r\n app.use('/api/locations', locationRoutes);\r\n app.use('/api/staff', staffRoutes);\r\n app.use('/api/products', posRoutes)\r\n+app.use('/api/checkin', checkinRoutes);\r\n \r\n \r\n \r\n app.get('/', (req, res) => {\r\n"
+                },
+                {
+                    "date": 1752944211083,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -21,10 +21,13 @@\n import locationRoutes from './routes/location.routes';\r\n import staffRoutes from './routes/staff.routes'\r\n import posRoutes from './routes/pos.routes'\r\n import checkinRoutes from './routes/checkin.routes'\r\n+import taskRoutes from './routes/task.routes';\r\n \r\n \r\n+\r\n+\r\n dotenv.config();\r\n const app = express();\r\n \r\n app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));\r\n@@ -50,8 +53,9 @@\n app.use('/api/locations', locationRoutes);\r\n app.use('/api/staff', staffRoutes);\r\n app.use('/api/products', posRoutes)\r\n app.use('/api/checkin', checkinRoutes);\r\n+app.use('/api/tasks', taskRoutes);\r\n \r\n \r\n \r\n app.get('/', (req, res) => {\r\n"
                 }
             ],
             "date": 1752122083347,

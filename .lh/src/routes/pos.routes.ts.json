@@ -1,0 +1,34 @@
+{
+    "sourceFile": "src/routes/pos.routes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 4,
+            "patches": [
+                {
+                    "date": 1752909362595,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752910110091,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,10 +8,10 @@\n } from '../controllers/pos.controller';\r\n \r\n const router = express.Router();\r\n \r\n-router.get('/products', getProducts);\r\n-router.post('/products', createProduct);\r\n+router.get('/', getProducts);\r\n+router.post('/', createProduct);\r\n router.put('/products/:id', updateProduct);\r\n router.delete('/products/:id', deleteProduct);\r\n \r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752910131917,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,8 +10,8 @@\n const router = express.Router();\r\n \r\n router.get('/', getProducts);\r\n router.post('/', createProduct);\r\n-router.put('/products/:id', updateProduct);\r\n-router.delete('/products/:id', deleteProduct);\r\n+router.put('/:id', updateProduct);\r\n+router.delete('/:id', deleteProduct);\r\n \r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752910670599,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,17 +1,19 @@\n-// gym-api/src/routes/pos.routes.ts\r\n import express from 'express';\r\n import {\r\n   getProducts,\r\n   createProduct,\r\n   updateProduct,\r\n-  deleteProduct\r\n+  deleteProduct,\r\n } from '../controllers/pos.controller';\r\n \r\n+import { authMiddleware } from '../middlewares/authMiddleware';\r\n+\r\n const router = express.Router();\r\n \r\n-router.get('/', getProducts);\r\n-router.post('/', createProduct);\r\n-router.put('/:id', updateProduct);\r\n-router.delete('/:id', deleteProduct);\r\n+// ✅ Protect each route\r\n+router.get('/', authMiddleware, getProducts);\r\n+router.post('/', authMiddleware, createProduct);\r\n+router.put('/:id', authMiddleware, updateProduct);\r\n+router.delete('/:id', authMiddleware, deleteProduct);\r\n \r\n export default router;\r\n"
+                },
+                {
+                    "date": 1752914151467,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,17 +3,19 @@\n   getProducts,\r\n   createProduct,\r\n   updateProduct,\r\n   deleteProduct,\r\n+  processTransaction\r\n } from '../controllers/pos.controller';\r\n \r\n import { authMiddleware } from '../middlewares/authMiddleware';\r\n \r\n const router = express.Router();\r\n \r\n-// ✅ Protect each route\r\n+\r\n router.get('/', authMiddleware, getProducts);\r\n router.post('/', authMiddleware, createProduct);\r\n router.put('/:id', authMiddleware, updateProduct);\r\n router.delete('/:id', authMiddleware, deleteProduct);\r\n+router.post('/transactions', authMiddleware, processTransaction);\r\n \r\n export default router;\r\n"
+                }
+            ],
+            "date": 1752909362595,
+            "name": "Commit-0",
+            "content": "// gym-api/src/routes/pos.routes.ts\r\nimport express from 'express';\r\nimport {\r\n  getProducts,\r\n  createProduct,\r\n  updateProduct,\r\n  deleteProduct\r\n} from '../controllers/pos.controller';\r\n\r\nconst router = express.Router();\r\n\r\nrouter.get('/products', getProducts);\r\nrouter.post('/products', createProduct);\r\nrouter.put('/products/:id', updateProduct);\r\nrouter.delete('/products/:id', deleteProduct);\r\n\r\nexport default router;\r\n"
+        }
+    ]
+}
