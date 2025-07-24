@@ -115,45 +115,66 @@ export const getMembersByTrainer = async (req: Request, res: Response) => {
 
 // GET /api/members/join-trend?clubId=...&range=30
 export const getMemberJoinTrend = async (req: Request, res: Response) => {
-  const { clubId, range } = req.query;
+  const { clubId, range } = req.query; // clubId will be undefined here for super_admin
   const days = parseInt(range as string) || 30;
 
-  if (!clubId) {
-    return res.status(400).json({ error: 'Missing clubId' });
-  }
+  // IMPORTANT: The check for `!clubId` is GONE from here, as we want to allow optional clubId.
+  // We don't want to return 400 if clubId is missing for a global trend.
 
   const end = new Date();
-  const start = new Date();
-  start.setDate(end.getDate() - days);
+  end.setHours(23, 59, 59, 999);
+
+  const start = new Date(end);
+  start.setDate(end.getDate() - (days - 1));
+  start.setHours(0, 0, 0, 0);
+
+  let whereClause: any = {
+    memberType: 'member',
+    createdAt: {
+      gte: start,
+      lte: end,
+    },
+  };
+
+  // This `if (clubId)` block is key. If clubId is undefined (from frontend not sending it),
+  // this block is skipped, and the query runs globally.
+  if (clubId) { 
+    whereClause.clubId = String(clubId);
+    console.log(`Backend: clubId provided (${clubId}), fetching club-specific member join trend.`);
+  } else {
+    console.log('Backend: No clubId provided, fetching GLOBAL member join trend.');
+  }
+
+  console.log(`Backend: Fetching join trend with filters:`, whereClause);
 
   try {
     const members = await prisma.member.findMany({
-      where: {
-        clubId: String(clubId),
-        createdAt: {
-          gte: start,
-          lte: end,
-        },
-      },
+      where: whereClause,
       select: { createdAt: true },
     });
 
-    // Bucket by date
+    console.log(`Backend: Found ${members.length} members within the date range.`);
+
     const countByDate: Record<string, number> = {};
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    for (let d = new Date(start); 
+    d <= end; d.setDate(d.getDate() + 1)) {
       const key = d.toISOString().split('T')[0];
       countByDate[key] = 0;
     }
 
     members.forEach((m) => {
       const key = m.createdAt.toISOString().split('T')[0];
-      if (countByDate[key] !== undefined) countByDate[key]++;
+      if (countByDate[key] !== undefined) {
+        countByDate[key]++;
+      }
     });
 
-    const result = Object.entries(countByDate).map(([date, count]) => ({
-      date,
-      count,
-    }));
+    const result = Object.entries(countByDate)
+      .sort(([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime())
+      .map(([date, count]) => ({
+        date,
+        count,
+      }));
 
     res.json(result);
   } catch (err) {

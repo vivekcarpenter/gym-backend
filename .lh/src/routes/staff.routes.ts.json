@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 3,
             "patches": [
                 {
                     "date": 1752901091177,
@@ -16,6 +16,10 @@
                 {
                     "date": 1752913126243,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -16,9 +16,9 @@\n );\r\n \r\n // Route to get all staff for a franchise\r\n router.get(\r\n-  '/staff',\r\n+  '/',\r\n   authMiddleware,\r\n   authorize(['franchise_admin']), // Only franchise_admin can view staff\r\n   getAllStaffForFranchise // This controller needs to filter by clubId and roles\r\n );\r\n"
+                },
+                {
+                    "date": 1753170770503,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,9 +8,9 @@\n const router = express.Router();\r\n \r\n // Route to invite new staff members\r\n router.post(\r\n-  '/staff/invite',\r\n+  '/invite',\r\n   authMiddleware,\r\n   authorize(['franchise_admin']), // Only franchise_admin can invite staff\r\n   inviteStaff\r\n );\r\n"
                 }
             ],
             "date": 1752901091177,

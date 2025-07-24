@@ -16,25 +16,37 @@ import {
 
 const router = Router();
 const prisma = new PrismaClient();
+
 router.get('/', async (req, res) => {
-  const { limit = 5 } = req.query;
+  const { limit = 5, clubId } = req.query; // Add clubId to query params
+  const take = Number(limit);
+
+  let whereClause: any = {}; // Initialize as empty object
+
+  if (clubId) {
+    whereClause.clubId = String(clubId);
+  } else {
+    console.log('Backend /api/schedule: No clubId provided, fetching GLOBAL schedules.');
+  }
 
   try {
     const schedules = await prisma.classSchedule.findMany({
+      where: whereClause, // Apply the conditional clubId filter
       include: {
         trainer: { select: { name: true } },
         location: true,
       },
       orderBy: { date: 'desc' },
-      take: Number(limit),
+      take: take,
     });
 
-    res.json({ data: schedules });
+    res.json(schedules); // Return the array directly, no 'data' wrapper needed
   } catch (err) {
     console.error('Fetch schedule error:', err);
     res.status(500).json({ error: 'Failed to fetch schedule' });
   }
 });
+
 
 // ====================================================================================
 // --- TRAINER-SPECIFIC SCHEDULE ROUTES ---

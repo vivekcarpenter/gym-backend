@@ -220,8 +220,8 @@ model PaymentMethod {
 
 model Invoice {
   id       String        @id @default(uuid())
-  member   Member        @relation(fields: [memberId], references: [id])
-  memberId String
+  member   Member?       @relation(fields: [memberId], references: [id])
+  memberId String?
   planName String
   amount   Float
   status   InvoiceStatus

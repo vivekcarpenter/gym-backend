@@ -36,15 +36,34 @@ export const loginController = async (req: Request, res: Response) => {
     };
 
     // Conditionally add profile-specific IDs and permissions
-    if (user.role === 'trainer' && user.trainerProfile) {
-      tokenPayload.profileType = 'trainer';
-      tokenPayload.profileId = user.trainerProfile.id;
-      tokenPayload.canCreateClasses = user.trainerProfile.canCreateClasses;
-    } 
-    else if (user.role === 'member' && user.memberProfile) {
-      tokenPayload.profileType = 'member';
-      tokenPayload.profileId = user.memberProfile.id;
-    }
+    // if (user.role === 'trainer' && user.trainerProfile) {
+    //   tokenPayload.profileType = 'trainer';
+    //   tokenPayload.profileId = user.trainerProfile.id;
+    //   tokenPayload.canCreateClasses = user.trainerProfile.canCreateClasses;
+    // } 
+    // else if (user.role === 'member' && user.memberProfile) {
+    //   tokenPayload.profileType = 'member';
+    //   tokenPayload.profileId = user.memberProfile.id;
+    // }
+
+
+    // Block login ONLY if trainer/member profile is missing
+if (
+  (user.role === 'trainer' && !user.trainerProfile) ||
+  (user.role === 'member' && !user.memberProfile)
+) {
+  return res.status(403).json({ error: 'Profile not configured for this role yet.' });
+}
+
+// Add optional profile data to tokenPayload
+if (user.role === 'trainer') {
+  tokenPayload.profileType = 'trainer';
+  tokenPayload.profileId = user.trainerProfile?.id || null;
+  tokenPayload.canCreateClasses = user.trainerProfile?.canCreateClasses || false;
+} else if (user.role === 'member') {
+  tokenPayload.profileType = 'member';
+  tokenPayload.profileId = user.memberProfile?.id || null;
+}
 
     console.log('Login Controller Debug: Final tokenPayload before signing:', tokenPayload);
 

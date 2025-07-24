@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/controllers/report.controller.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1753118412102,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1753118412102,
+            "name": "Commit-0",
+            "content": "import { Request, Response } from 'express';\r\nimport { generateCSVBuffer, generatePDFBuffer } from '../services/reportExport.service';\r\n\r\nexport const exportCSVReport = async (req: Request, res: Response) => {\r\n  try {\r\n    const filters = req.body;\r\n    const csvBuffer = await generateCSVBuffer(filters);\r\n\r\n    res.setHeader('Content-Type', 'text/csv');\r\n    res.setHeader('Content-Disposition', 'attachment; filename=\"gym_report.csv\"');\r\n    res.send(csvBuffer);\r\n  } catch (err) {\r\n    console.error('CSV export failed:', err);\r\n    res.status(500).json({ error: 'Failed to generate CSV export.' });\r\n  }\r\n};\r\n\r\nexport const exportPDFReport = async (req: Request, res: Response) => {\r\n  try {\r\n    const filters = req.body;\r\n    const pdfBuffer = await generatePDFBuffer(filters);\r\n\r\n    res.setHeader('Content-Type', 'application/pdf');\r\n    res.setHeader('Content-Disposition', 'attachment; filename=\"gym_report.pdf\"');\r\n    res.send(pdfBuffer);\r\n  } catch (err) {\r\n    console.error('PDF export failed:', err);\r\n    res.status(500).json({ error: 'Failed to generate PDF export.' });\r\n  }\r\n};\r\n"
+        }
+    ]
+}

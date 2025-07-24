@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 47,
+            "activePatchIndex": 48,
             "patches": [
                 {
                     "date": 1752122083348,
@@ -196,6 +196,10 @@
                 {
                     "date": 1752944211083,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -21,10 +21,13 @@\n import locationRoutes from './routes/location.routes';\r\n import staffRoutes from './routes/staff.routes'\r\n import posRoutes from './routes/pos.routes'\r\n import checkinRoutes from './routes/checkin.routes'\r\n+import taskRoutes from './routes/task.routes';\r\n \r\n \r\n+\r\n+\r\n dotenv.config();\r\n const app = express();\r\n \r\n app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));\r\n@@ -50,8 +53,9 @@\n app.use('/api/locations', locationRoutes);\r\n app.use('/api/staff', staffRoutes);\r\n app.use('/api/products', posRoutes)\r\n app.use('/api/checkin', checkinRoutes);\r\n+app.use('/api/tasks', taskRoutes);\r\n \r\n \r\n \r\n app.get('/', (req, res) => {\r\n"
+                },
+                {
+                    "date": 1753118486619,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,8 +22,9 @@\n import staffRoutes from './routes/staff.routes'\r\n import posRoutes from './routes/pos.routes'\r\n import checkinRoutes from './routes/checkin.routes'\r\n import taskRoutes from './routes/task.routes';\r\n+import reportRoutes from './routes/report.routes';\r\n \r\n \r\n \r\n \r\n@@ -54,8 +55,9 @@\n app.use('/api/staff', staffRoutes);\r\n app.use('/api/products', posRoutes)\r\n app.use('/api/checkin', checkinRoutes);\r\n app.use('/api/tasks', taskRoutes);\r\n+app.use('/api/reports', reportRoutes);\r\n \r\n \r\n \r\n app.get('/', (req, res) => {\r\n"
                 }
             ],
             "date": 1752122083347,

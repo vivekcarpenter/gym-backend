@@ -4,11 +4,18 @@ import {
   getAttendanceForSchedule,
   markAttendance,
 } from '../controllers/attendance.controller';
+import { getAttendanceByFilters } from '../controllers/attendance.controller';
+
+
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { PrismaClient } from '@prisma/client';
 
+
 const router = express.Router();
 const prisma = new PrismaClient();
+
+
+
               
 router.get('/today', async (req, res) => {
   const { clubId } = req.query;
@@ -38,6 +45,9 @@ router.get('/today', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch attendance' });
   }
 });
+
+
+router.get('/', authMiddleware, getAttendanceByFilters); // 👈 Now GET /api/attendance?clubId=...&startDate=... works
 
 
 

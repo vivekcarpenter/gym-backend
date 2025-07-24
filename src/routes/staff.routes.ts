@@ -9,7 +9,7 @@ const router = express.Router();
 
 // Route to invite new staff members
 router.post(
-  '/staff/invite',
+  '/invite',
   authMiddleware,
   authorize(['franchise_admin']), // Only franchise_admin can invite staff
   inviteStaff

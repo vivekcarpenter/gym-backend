@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 6,
             "patches": [
                 {
                     "date": 1752909305525,
@@ -12,6 +12,26 @@
                 {
                     "date": 1752914124740,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -68,4 +68,56 @@\n     console.error('DELETE /products/:id error:', err);\r\n     res.status(500).json({ message: 'Failed to delete product' });\r\n   }\r\n };\r\n+\r\n+export const processTransaction = async (req: Request, res: Response) => {\r\n+  const staffId = req.user?.id;\r\n+  const clubId = req.user?.clubId;\r\n+  const { method, items } = req.body;\r\n+\r\n+  if (!staffId || !clubId || !method || !Array.isArray(items)) {\r\n+    return res.status(400).json({ error: 'Invalid transaction request.' });\r\n+  }\r\n+\r\n+  try {\r\n+    // Start transaction\r\n+    const total = items.reduce(\r\n+      (sum: number, item: any) => sum + item.unitPrice * item.quantity,\r\n+      0\r\n+    );\r\n+\r\n+    const createdTx = await prisma.productTransaction.create({\r\n+      data: {\r\n+        staffId,\r\n+        clubId,\r\n+        method,\r\n+        total,\r\n+        items: {\r\n+          create: items.map((item: any) => ({\r\n+            productId: item.productId,\r\n+            quantity: item.quantity,\r\n+            unitPrice: item.unitPrice\r\n+          }))\r\n+        }\r\n+      },\r\n+      include: { items: true }\r\n+    });\r\n+\r\n+    // Decrease stock for each product\r\n+    for (const item of items) {\r\n+      await prisma.product.update({\r\n+        where: { id: item.productId },\r\n+        data: {\r\n+          stock: {\r\n+            decrement: item.quantity\r\n+          }\r\n+        }\r\n+      });\r\n+    }\r\n+\r\n+    res.status(201).json({ message: 'Transaction completed', transaction: createdTx });\r\n+  } catch (error) {\r\n+    console.error('Transaction failed:', error);\r\n+    res.status(500).json({ error: 'Failed to process transaction.' });\r\n+  }\r\n+};\r\n"
+                },
+                {
+                    "date": 1753160605535,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -114,8 +114,21 @@\n         }\r\n       });\r\n     }\r\n \r\n+     await prisma.invoice.create({\r\n+      data: {\r\n+        memberId: null, // POS sales are not member-linked\r\n+        planName: 'POS Sale',\r\n+        amount: total,\r\n+        status: 'paid',\r\n+        clubId: clubId,\r\n+        issuedAt: new Date(),\r\n+        dueDate: new Date(),\r\n+        type: 'product_sale' // optional, for clarity\r\n+      }\r\n+    });\r\n+\r\n     res.status(201).json({ message: 'Transaction completed', transaction: createdTx });\r\n   } catch (error) {\r\n     console.error('Transaction failed:', error);\r\n     res.status(500).json({ error: 'Failed to process transaction.' });\r\n"
+                },
+                {
+                    "date": 1753160661948,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -123,9 +123,8 @@\n         status: 'paid',\r\n         clubId: clubId,\r\n         issuedAt: new Date(),\r\n         dueDate: new Date(),\r\n-        type: 'product_sale' // optional, for clarity\r\n       }\r\n     });\r\n \r\n     res.status(201).json({ message: 'Transaction completed', transaction: createdTx });\r\n"
+                },
+                {
+                    "date": 1753160896803,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -115,14 +115,13 @@\n       });\r\n     }\r\n \r\n      await prisma.invoice.create({\r\n-      data: {\r\n-        memberId: null, // POS sales are not member-linked\r\n+      data: { // POS sales are not member-linked\r\n         planName: 'POS Sale',\r\n         amount: total,\r\n         status: 'paid',\r\n-        clubId: clubId,\r\n+        clubId,\r\n         issuedAt: new Date(),\r\n         dueDate: new Date(),\r\n       }\r\n     });\r\n"
+                },
+                {
+                    "date": 1753163569177,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -115,9 +115,10 @@\n       });\r\n     }\r\n \r\n      await prisma.invoice.create({\r\n-      data: { // POS sales are not member-linked\r\n+      data: { \r\n+        memberId: memberId || null, // POS sales are not member-linked\r\n         planName: 'POS Sale',\r\n         amount: total,\r\n         status: 'paid',\r\n         clubId,\r\n"
+                },
+                {
+                    "date": 1753164887324,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -72,16 +72,16 @@\n \r\n export const processTransaction = async (req: Request, res: Response) => {\r\n   const staffId = req.user?.id;\r\n   const clubId = req.user?.clubId;\r\n-  const { method, items } = req.body;\r\n+  // Destructure memberId from the request body\r\n+  const { method, items, memberId } = req.body;\r\n \r\n   if (!staffId || !clubId || !method || !Array.isArray(items)) {\r\n     return res.status(400).json({ error: 'Invalid transaction request.' });\r\n   }\r\n \r\n   try {\r\n-    // Start transaction\r\n     const total = items.reduce(\r\n       (sum: number, item: any) => sum + item.unitPrice * item.quantity,\r\n       0\r\n     );\r\n@@ -114,11 +114,12 @@\n         }\r\n       });\r\n     }\r\n \r\n-     await prisma.invoice.create({\r\n-      data: { \r\n-        memberId: memberId || null, // POS sales are not member-linked\r\n+    // Create Invoice, using the memberId from the request body, which can be null\r\n+    await prisma.invoice.create({\r\n+      data: {\r\n+        memberId: memberId || null, // Use the memberId from req.body, default to null if not provided\r\n         planName: 'POS Sale',\r\n         amount: total,\r\n         status: 'paid',\r\n         clubId,\r\n@@ -132,4 +133,5 @@\n     console.error('Transaction failed:', error);\r\n     res.status(500).json({ error: 'Failed to process transaction.' });\r\n   }\r\n };\r\n+\r\n"
                 }
             ],
             "date": 1752909305525,

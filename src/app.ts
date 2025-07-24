@@ -23,6 +23,7 @@ import staffRoutes from './routes/staff.routes'
 import posRoutes from './routes/pos.routes'
 import checkinRoutes from './routes/checkin.routes'
 import taskRoutes from './routes/task.routes';
+import reportRoutes from './routes/report.routes';
 
 
 
@@ -55,6 +56,7 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/products', posRoutes)
 app.use('/api/checkin', checkinRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/reports', reportRoutes);
 
 
 

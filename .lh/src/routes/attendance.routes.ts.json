@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 7,
+            "activePatchIndex": 8,
             "patches": [
                 {
                     "date": 1752450841096,
@@ -36,6 +36,10 @@
                 {
                     "date": 1753038217386,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,11 +4,12 @@\n   getAttendanceForSchedule,\r\n   markAttendance,\r\n } from '../controllers/attendance.controller';\r\n import { authMiddleware } from '../middlewares/authMiddleware';\r\n+import { PrismaClient } from '@prisma/client';\r\n \r\n const router = express.Router();\r\n-\r\n+const prisma = new PrismaClient();\r\n               \r\n router.get('/today', async (req, res) => {\r\n   const { clubId } = req.query;\r\n \r\n"
+                },
+                {
+                    "date": 1753073805589,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,13 +3,20 @@\n import {\r\n   getAttendanceForSchedule,\r\n   markAttendance,\r\n } from '../controllers/attendance.controller';\r\n+import { getAttendanceByFilters } from '../controllers/attendance.controller';\r\n+\r\n+\r\n import { authMiddleware } from '../middlewares/authMiddleware';\r\n import { PrismaClient } from '@prisma/client';\r\n \r\n+\r\n const router = express.Router();\r\n const prisma = new PrismaClient();\r\n+\r\n+\r\n+\r\n               \r\n router.get('/today', async (req, res) => {\r\n   const { clubId } = req.query;\r\n \r\n@@ -39,9 +46,12 @@\n   }\r\n });\r\n \r\n \r\n+router.get('/', authMiddleware, getAttendanceByFilters); // 👈 Now GET /api/attendance?clubId=...&startDate=... works\r\n \r\n+\r\n+\r\n router.get('/schedule/:scheduleId', authMiddleware, getAttendanceForSchedule); // Get attendance for a specific class\r\n router.post('/', authMiddleware, markAttendance); // Mark attendance (bulk)\r\n \r\n \r\n"
                 }
             ],
             "date": 1752450841095,

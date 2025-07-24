@@ -73,14 +73,14 @@ export const deleteProduct = async (req: Request, res: Response) => {
 export const processTransaction = async (req: Request, res: Response) => {
   const staffId = req.user?.id;
   const clubId = req.user?.clubId;
-  const { method, items } = req.body;
+  // Destructure memberId from the request body
+  const { method, items, memberId } = req.body;
 
   if (!staffId || !clubId || !method || !Array.isArray(items)) {
     return res.status(400).json({ error: 'Invalid transaction request.' });
   }
 
   try {
-    // Start transaction
     const total = items.reduce(
       (sum: number, item: any) => sum + item.unitPrice * item.quantity,
       0
@@ -115,9 +115,23 @@ export const processTransaction = async (req: Request, res: Response) => {
       });
     }
 
+    // Create Invoice, using the memberId from the request body, which can be null
+    await prisma.invoice.create({
+      data: {
+        memberId: memberId || null, // Use the memberId from req.body, default to null if not provided
+        planName: 'POS Sale',
+        amount: total,
+        status: 'paid',
+        clubId,
+        issuedAt: new Date(),
+        dueDate: new Date(),
+      }
+    });
+
     res.status(201).json({ message: 'Transaction completed', transaction: createdTx });
   } catch (error) {
     console.error('Transaction failed:', error);
     res.status(500).json({ error: 'Failed to process transaction.' });
   }
 };
+

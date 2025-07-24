@@ -3,21 +3,7 @@ import { createNewMember } from '../services/member.service';
 import prisma from '../lib/prisma';
 
 export const getAllClubs = async (req: Request, res: Response) => {
-  const clubs = await prisma.club.findMany({
-  include: {
-    users: {
-      where: {
-        role: 'franchise_admin',
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-      },
-      take: 1 // Get only one admin per club
-    },
-  },
-});
+  const clubs = await prisma.club.findMany();
   res.json(clubs);
 };
 

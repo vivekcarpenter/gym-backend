@@ -1,0 +1,22 @@
+{
+    "sourceFile": "src/middlewares/upload.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1753126089866,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1753126162175,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,19 +1,17 @@\n import multer from 'multer';\r\n import path from 'path';\r\n import fs from 'fs';\r\n \r\n-// Ensure uploads directory exists\r\n const uploadDir = path.join(__dirname, '..', '..', 'uploads');\r\n if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);\r\n \r\n const storage = multer.diskStorage({\r\n   destination: (_req, _file, cb) => {\r\n     cb(null, uploadDir);\r\n   },\r\n   filename: (_req, file, cb) => {\r\n-    const uniqueName = `${Date.now()}-${file.originalname}`;\r\n-    cb(null, uniqueName);\r\n+    cb(null, `${Date.now()}-${file.originalname}`);\r\n   },\r\n });\r\n \r\n export const upload = multer({ storage });\r\n"
+                }
+            ],
+            "date": 1753126089866,
+            "name": "Commit-0",
+            "content": "import multer from 'multer';\r\nimport path from 'path';\r\nimport fs from 'fs';\r\n\r\n// Ensure uploads directory exists\r\nconst uploadDir = path.join(__dirname, '..', '..', 'uploads');\r\nif (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);\r\n\r\nconst storage = multer.diskStorage({\r\n  destination: (_req, _file, cb) => {\r\n    cb(null, uploadDir);\r\n  },\r\n  filename: (_req, file, cb) => {\r\n    const uniqueName = `${Date.now()}-${file.originalname}`;\r\n    cb(null, uniqueName);\r\n  },\r\n});\r\n\r\nexport const upload = multer({ storage });\r\n"
+        }
+    ]
+}
