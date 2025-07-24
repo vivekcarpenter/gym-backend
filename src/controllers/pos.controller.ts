@@ -1,14 +1,15 @@
 // gym-api/src/controllers/pos.controller.ts
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthenticatedRequest } from '../types/request.types';
 
 const prisma = new PrismaClient();
 
-export const getProducts = async (req: Request, res: Response) => {
+export const getProducts = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const products = await prisma.product.findMany({
       where: {
-        clubId: req.user.clubId,
+        clubId: req.user.clubId!,
       },
     });
     res.json(products);
@@ -18,7 +19,7 @@ export const getProducts = async (req: Request, res: Response) => {
   }
 };
 
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { name, category, price, stock } = req.body;
     const product = await prisma.product.create({
@@ -27,7 +28,7 @@ export const createProduct = async (req: Request, res: Response) => {
         category,
         price: parseFloat(price),
         stock: parseInt(stock),
-        clubId: req.user.clubId,
+        clubId: req.user.clubId!,
       },
     });
     res.status(201).json(product);
@@ -37,7 +38,7 @@ export const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { name, category, price, stock } = req.body;
@@ -59,7 +60,7 @@ export const updateProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteProduct = async (req: Request, res: Response) => {
+export const deleteProduct = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     await prisma.product.delete({ where: { id } });
@@ -70,7 +71,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const processTransaction = async (req: Request, res: Response) => {
+export const processTransaction = async (req: AuthenticatedRequest, res: Response) => {
   const staffId = req.user?.id;
   const clubId = req.user?.clubId;
   // Destructure memberId from the request body
