@@ -1,12 +1,16 @@
 // src/controllers/user.controller.ts
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
+import { Role } from '@prisma/client';
 
 export const getUsersByRole = async (req: Request, res: Response) => {
   const { role } = req.query;
+   if (!role || typeof role !== 'string' || !Object.values(Role).includes(role as Role)) {
+    return res.status(400).json({ error: 'Invalid or missing role' });
+  }
 
   const users = await prisma.user.findMany({
-    where: { role: String(role) },
+    where: { role: role as Role },
     select: {
       id: true,
       email: true,
