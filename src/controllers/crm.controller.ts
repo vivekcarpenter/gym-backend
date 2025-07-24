@@ -226,12 +226,11 @@ export const convertLead = async (req: Request, res: Response) => {
     const leadToConvert = await prisma.lead.findUnique({
       where: { id: parseInt(id)},
       include: {
-        member: { // Include the member linked to this lead (if it exists)
-          select: {
-            id: true,
-            memberType: true,
-          },
-        },
+       member :{
+       id: true,
+      memberType: true,
+       }
+        
       },
     });
 
@@ -244,7 +243,7 @@ export const convertLead = async (req: Request, res: Response) => {
     const [updatedLead, updatedMember] = await prisma.$transaction([
       // 2. Update the Lead's status to "CONVERTED"
       prisma.lead.update({
-        where: { id: id as string },
+        where: { id: parseInt(id) },
         data: {
           status: 'CONVERTED',
           convertedAt: new Date(),

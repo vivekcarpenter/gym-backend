@@ -417,7 +417,9 @@ model Lead {
   convertedAt    DateTime? 
 
   communications Communication[] // Link to communications related to the lead
-  member         Member?    // Link to Member (once the lead converts into a member)
+  member         Member? @relation(fields: [memberId], references: [id])     // Link to Member (once the lead converts into a member)
+  memberId       String?
+
 }
 
 enum LeadStatus {
