@@ -127,6 +127,7 @@ model Member {
   note        String?
 
   memberType  String // 'member' or 'prospect'
+  emergencyName String?
 
   // Address
   street        String?
