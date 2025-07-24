@@ -219,21 +219,19 @@ export const getStaffMembers = async (req: Request, res: Response) => {
 // ... (existing imports and other controller functions)
 
 export const convertLead = async (req: Request, res: Response) => {
-  const { id } = req.params; // ID from URL
+  const { id } = req.params;
 
   try {
-    // Fetch lead with member
     const leadToConvert = await prisma.lead.findUnique({
       where: { id: id.toString() },
-      include: { member: true }, // just 'true' for include
+      include: { member: true },
     });
 
     if (!leadToConvert) {
       return res.status(404).json({ error: 'Lead not found.' });
     }
 
-    // Transactionally convert lead + update member if linked
-    let actions = [
+    await prisma.$transaction([
       prisma.lead.update({
         where: { id: id.toString() },
         data: {
@@ -241,24 +239,30 @@ export const convertLead = async (req: Request, res: Response) => {
           convertedAt: new Date(),
         },
       }),
-    ];
+      ...(leadToConvert.member?.id
+        ? [
+            prisma.member.update({
+              where: { id: leadToConvert.member.id.toString() },
+              data: { memberType: 'member' },
+            }),
+          ]
+        : []),
+    ]);
 
-    if (leadToConvert.member?.id) {
-  actions.push(
-    prisma.member.update({
-      where: { id: leadToConvert.member.id.toString() },
-      data: { memberType: 'member' },
-    })
-  );
-}
-
-    const [updatedLead] = await prisma.$transaction(actions);
+    // Now fetch updated lead again and return it
+    const updatedLead = await prisma.lead.findUnique({
+      where: { id: id.toString() },
+      include: { member: true },
+    });
 
     res.status(200).json(updatedLead);
   } catch (error) {
     console.error('Error converting lead:', error);
-    res.status(500).json({ message: 'Failed to convert lead', error: (error as Error).message });
+    res
+      .status(500)
+      .json({ message: 'Failed to convert lead', error: (error as Error).message });
   }
 };
+
 
 
