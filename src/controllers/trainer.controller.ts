@@ -8,13 +8,13 @@ import { sendPasswordSetupEmail } from '../services/email.service';
 const prisma = new PrismaClient();
 
 
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    clubId?: string;
-    role: string;
-  };
-}
+// interface AuthenticatedRequest extends Request {
+//   user?: {
+//     id: string;
+//     clubId?: string;
+//     role: string;
+//   };
+// }
 
 export const getTrainersByFranchise = async (req: Request, res: Response) => {
   const { franchiseId } = req.params; // This is the clubId
