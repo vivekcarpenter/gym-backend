@@ -1,38 +1,38 @@
 //src>routes>member.routes.ts
-import express from 'express';
-import { PrismaClient } from '@prisma/client';
-import { Request, Response } from 'express';
-import { getMembersByTrainer } from '../controllers/member.controller';
-import { getMemberJoinTrend } from '../controllers/member.controller';
-import { upload } from '../middlewares/upload';
+import express from "express";
+import { PrismaClient } from "@prisma/client";
+import { Request, Response } from "express";
+import { getMembersByTrainer } from "../controllers/member.controller";
+import { getMemberJoinTrend } from "../controllers/member.controller";
+import { upload } from "../middlewares/upload";
+import { Multer } from "multer";
 
+interface MulterRequest extends Request {
+  file: Express.Multer.File;
+}
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
+router.get("/join-trend", getMemberJoinTrend);
 
-
-router.get('/join-trend', getMemberJoinTrend);
-
-router.get('/count', async (req, res) => {
+router.get("/count", async (req, res) => {
   try {
     const count = await prisma.member.count({
-      where: { memberType: 'member' },
+      where: { memberType: "member" },
     });
     res.json({ count });
   } catch (err) {
-    console.error('Error fetching member count:', err);
-    res.status(500).json({ error: 'Failed to fetch member count' });
+    console.error("Error fetching member count:", err);
+    res.status(500).json({ error: "Failed to fetch member count" });
   }
 });
 
-
-
-router.get('/search', async (req, res) => {
-  const { q = '', clubId } = req.query;
+router.get("/search", async (req, res) => {
+  const { q = "", clubId } = req.query;
 
   if (!clubId) {
-    return res.status(400).json({ error: 'Missing clubId' });
+    return res.status(400).json({ error: "Missing clubId" });
   }
 
   try {
@@ -43,7 +43,7 @@ router.get('/search', async (req, res) => {
       members = await prisma.member.findMany({
         where: {
           clubId: String(clubId),
-          memberType: 'member',
+          memberType: "member",
         },
         select: {
           id: true,
@@ -52,7 +52,7 @@ router.get('/search', async (req, res) => {
           email: true,
           keyFob: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         take: 10,
       });
     } else {
@@ -61,10 +61,10 @@ router.get('/search', async (req, res) => {
         where: {
           clubId: String(clubId),
           OR: [
-            { firstName: { contains: String(q), mode: 'insensitive' } },
-            { lastName: { contains: String(q), mode: 'insensitive' } },
-            { email: { contains: String(q), mode: 'insensitive' } },
-            { keyFob: { contains: String(q), mode: 'insensitive' } },
+            { firstName: { contains: String(q), mode: "insensitive" } },
+            { lastName: { contains: String(q), mode: "insensitive" } },
+            { email: { contains: String(q), mode: "insensitive" } },
+            { keyFob: { contains: String(q), mode: "insensitive" } },
           ],
         },
         select: {
@@ -80,13 +80,12 @@ router.get('/search', async (req, res) => {
 
     res.json(members);
   } catch (err) {
-    console.error('Search Error:', err);
-    res.status(500).json({ error: 'Failed to search members' });
+    console.error("Search Error:", err);
+    res.status(500).json({ error: "Failed to search members" });
   }
 });
 
-
-router.get('/by-trainer', getMembersByTrainer); 
+router.get("/by-trainer", getMembersByTrainer);
 
 // router.post('/', async (req, res) => {
 //   try {
@@ -132,7 +131,6 @@ router.get('/by-trainer', getMembersByTrainer);
 //         involvementType: additional?.involvementType || null,
 
 //         // Emergency
-    
 
 //         emergency: emergency || [],
 
@@ -148,8 +146,6 @@ router.get('/by-trainer', getMembersByTrainer);
 //   }
 // });
 
-
-
 // router.post('/:id/membership', async (req, res) => {
 //   try {
 //     const { id } = req.params;
@@ -161,7 +157,6 @@ router.get('/by-trainer', getMembersByTrainer);
 // if (!plan) {
 //   return res.status(400).json({ error: 'Invalid plan selected' });
 // }
-
 
 //     const active = await prisma.membership.findFirst({
 //   where: { memberId: id, status: 'active' }
@@ -214,36 +209,45 @@ router.get('/by-trainer', getMembersByTrainer);
 // });
 // In your member.routes.ts, update the membership creation route:
 
-
-router.post('/', upload.single('avatar'), async (req, res) => {
+router.post("/", upload.single("avatar"), async (req, res) => {
   try {
     const {
-      firstName, lastName, email, phone, work, dateOfBirth, gender,
-      keyFob, tags, note, memberType, medicalInfo, club
+      firstName,
+      lastName,
+      email,
+      phone,
+      work,
+      dateOfBirth,
+      gender,
+      keyFob,
+      tags,
+      note,
+      memberType,
+      medicalInfo,
+      club,
     } = req.body;
 
-
-     const targetClubId = club || clubId;
+    const targetClubId = club || club.id;
 
     // Validate that club ID is provided
     if (!targetClubId) {
-      return res.status(400).json({ error: 'Club ID is required' });
+      return res.status(400).json({ error: "Club ID is required" });
     }
 
     // Verify the club exists
     const existingClub = await prisma.club.findUnique({
-      where: { id: targetClubId }
+      where: { id: targetClubId },
     });
 
     if (!existingClub) {
-      return res.status(400).json({ error: 'Club not found' });
+      return res.status(400).json({ error: "Club not found" });
     }
-    const address = JSON.parse(req.body.address || '{}');
-    const marketing = JSON.parse(req.body.marketing || '{}');
-    const additional = JSON.parse(req.body.additional || '{}');
-    const emergency = JSON.parse(req.body.emergency || '[]');
-
-    const avatarUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const address = JSON.parse(req.body.address || "{}");
+    const marketing = JSON.parse(req.body.marketing || "{}");
+    const additional = JSON.parse(req.body.additional || "{}");
+    const emergency = JSON.parse(req.body.emergency || "[]");
+    const file = (req as MulterRequest).file;
+    const avatarUrl = file ? `/uploads/${file.filename}` : null;
 
     const newMember = await prisma.member.create({
       data: {
@@ -259,8 +263,8 @@ router.post('/', upload.single('avatar'), async (req, res) => {
         tags,
         note,
         memberType,
-         club: {
-          connect: { id: targetClubId }
+        club: {
+          connect: { id: targetClubId },
         },
 
         // Address
@@ -277,9 +281,11 @@ router.post('/', upload.single('avatar'), async (req, res) => {
 
         // Additional
         trainer: additional?.trainerId // <--- Change this line
-          ? { connect: { id: additional.trainerId } }
-          : undefined,
-        joiningDate: additional?.joiningDate ? new Date(additional.joiningDate) : null,
+          ? { connect: { id: additional.trainerId } }
+          : undefined,
+        joiningDate: additional?.joiningDate
+          ? new Date(additional.joiningDate)
+          : null,
         occupation: additional?.occupation || null,
         organization: additional?.organization || null,
         involvementType: additional?.involvementType || null,
@@ -290,50 +296,58 @@ router.post('/', upload.single('avatar'), async (req, res) => {
       },
       include: {
         club: true, // Include club data in response
-        trainer: true // Include trainer data if exists
-      }
+        trainer: true, // Include trainer data if exists
+      },
     });
 
-   res.status(201).json(newMember);
+    res.status(201).json(newMember);
   } catch (err) {
-    console.error('Add Member Error:', err);
-    
-    // More specific error handling
-    if (err.code === 'P2002') {
-      return res.status(400).json({ error: 'A member with this email already exists' });
-    }
-    
-    if (err.code === 'P2025') {
-      return res.status(400).json({ error: 'Referenced club or trainer not found' });
+    if (err instanceof Error) {
+      if ((err as any).code === "P2002") {
+        return res
+          .status(400)
+          .json({ error: "A member with this email already exists" });
+      }
+
+      if ((err as any).code === "P2025") {
+        return res
+          .status(400)
+          .json({ error: "Referenced club or trainer not found" });
+      }
+
+      return res
+        .status(500)
+        .json({ error: "Failed to create member", message: err.message });
     }
 
-    res.status(500).json({ error: 'Failed to create member' });
+    res.status(500).json({ error: "Unknown error occurred" });
   }
 });
 
-router.post('/:id/membership', async (req, res) => {
+router.post("/:id/membership", async (req, res) => {
   try {
     const { id } = req.params;
     const { planName, startDate, endDate, autoRenew, status } = req.body;
 
-    console.log('Creating membership for member:', id);
-    console.log('Request body:', req.body);
+    console.log("Creating membership for member:", id);
+    console.log("Request body:", req.body);
 
     const plan = await prisma.membershipPlan.findUnique({
       where: { name: planName },
     });
-    
+
     if (!plan) {
-      return res.status(400).json({ error: 'Invalid plan selected' });
+      return res.status(400).json({ error: "Invalid plan selected" });
     }
 
     const active = await prisma.membership.findFirst({
-      where: { memberId: id, status: 'active' }
+      where: { memberId: id, status: "active" },
     });
 
     if (active) {
       return res.status(400).json({
-        error: 'This member already has an active membership. Please cancel or expire it first.'
+        error:
+          "This member already has an active membership. Please cancel or expire it first.",
       });
     }
 
@@ -348,7 +362,7 @@ router.post('/:id/membership', async (req, res) => {
       },
     });
 
-    console.log('Membership created:', membership);
+    console.log("Membership created:", membership);
 
     // Get member details
     const member = await prisma.member.findUnique({
@@ -356,22 +370,24 @@ router.post('/:id/membership', async (req, res) => {
       select: { clubId: true, firstName: true, lastName: true },
     });
 
-    console.log('Member found:', member);
+    console.log("Member found:", member);
 
     if (!member) {
-      return res.status(404).json({ error: 'Member not found' });
+      return res.status(404).json({ error: "Member not found" });
     }
 
     if (!member.clubId) {
-      return res.status(400).json({ error: 'Member does not have a clubId assigned' });
+      return res
+        .status(400)
+        .json({ error: "Member does not have a clubId assigned" });
     }
 
     // Create invoice with detailed logging
-    console.log('Creating invoice with data:', {
+    console.log("Creating invoice with data:", {
       memberId: id,
       planName,
       amount: plan.price,
-      status: 'unpaid',
+      status: "unpaid",
       clubId: member.clubId,
       issuedAt: new Date(),
       dueDate: new Date(new Date().setDate(new Date().getDate() + 7)),
@@ -383,48 +399,61 @@ router.post('/:id/membership', async (req, res) => {
           memberId: id,
           planName,
           amount: plan.price,
-          status: 'unpaid',
+          status: "unpaid",
           clubId: member.clubId,
           issuedAt: new Date(),
           dueDate: new Date(new Date().setDate(new Date().getDate() + 7)),
         },
       });
 
-      console.log('Invoice created successfully:', invoice);
-      
+      console.log("Invoice created successfully:", invoice);
+
       res.status(201).json({
         membership,
         invoice,
-        message: 'Membership and invoice created successfully'
+        message: "Membership and invoice created successfully",
       });
-      
     } catch (invoiceError) {
-      console.error('Invoice creation error:', invoiceError);
-      
-      // If invoice creation fails, we might want to rollback the membership
+      console.error("Invoice creation error:", invoiceError);
+
+      // Rollback the membership
       await prisma.membership.delete({
-        where: { id: membership.id }
+        where: { id: membership.id },
       });
-      
-      return res.status(500).json({ 
-        error: 'Failed to create invoice', 
-        details: invoiceError.message 
+
+      let errorMessage = "Unknown error";
+
+      if (invoiceError instanceof Error) {
+        errorMessage = invoiceError.message;
+      }
+
+      return res.status(500).json({
+        error: "Failed to create invoice",
+        details: errorMessage,
       });
     }
-
   } catch (err) {
-    console.error('Add Membership Error:', err);
-    res.status(500).json({ 
-      error: 'Failed to create membership',
-      details: err.message 
+    console.error(
+      "Add Membership Error:",
+      err instanceof Error ? err.message : err
+    );
+    res.status(500).json({
+      error: "Failed to create membership",
+      details: err instanceof Error ? err.message : err,
     });
   }
 });
 
-
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const { tab = 'all', search = '', page = 1, limit = 10, clubId, trainerId } = req.query;
+    const {
+      tab = "all",
+      search = "",
+      page = 1,
+      limit = 10,
+      clubId,
+      trainerId,
+    } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
     let whereClause: any = {
@@ -432,29 +461,29 @@ router.get('/', async (req, res) => {
     };
 
     if (trainerId) {
-    whereClause.trainerId = trainerId; // ✅ FILTER BY TRAINER
-  }
+      whereClause.trainerId = trainerId; // ✅ FILTER BY TRAINER
+    }
 
     if (search) {
       whereClause.OR = [
-        { firstName: { contains: search, mode: 'insensitive' } },
-        { lastName: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
+        { firstName: { contains: search, mode: "insensitive" } },
+        { lastName: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
       ];
     }
 
     switch (tab) {
-      case 'active':
-        whereClause.memberType = 'member';
+      case "active":
+        whereClause.memberType = "member";
         break;
-      case 'expired':
-        whereClause.memberType = 'member';
+      case "expired":
+        whereClause.memberType = "member";
         whereClause.keyFob = null;
         break;
-      case 'prospect':
-        whereClause.memberType = 'prospect';
+      case "prospect":
+        whereClause.memberType = "prospect";
         break;
-      case 'recent':
+      case "recent":
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         whereClause.createdAt = { gte: thirtyDaysAgo };
@@ -466,7 +495,7 @@ router.get('/', async (req, res) => {
     const [members, total] = await Promise.all([
       prisma.member.findMany({
         where: whereClause,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip,
         take: Number(limit),
       }),
@@ -483,14 +512,14 @@ router.get('/', async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch members' });
+    res.status(500).json({ error: "Failed to fetch members" });
   }
 });
 
-router.get('/upcoming-renewals', async (req, res) => {
+router.get("/upcoming-renewals", async (req, res) => {
   const { clubId, days = 7 } = req.query;
 
-  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });
+  if (!clubId) return res.status(400).json({ error: "Missing clubId" });
 
   const upcomingDate = new Date();
   upcomingDate.setDate(upcomingDate.getDate() + Number(days));
@@ -503,20 +532,19 @@ router.get('/upcoming-renewals', async (req, res) => {
           gte: new Date(),
           lte: upcomingDate,
         },
-        status: 'active',
+        status: "active",
       },
     });
 
     res.json({ count });
   } catch (error) {
-    console.error('Error fetching upcoming renewals:', error);
-    res.status(500).json({ error: 'Failed to fetch upcoming renewals' });
+    console.error("Error fetching upcoming renewals:", error);
+    res.status(500).json({ error: "Failed to fetch upcoming renewals" });
   }
 });
 
-
 // GET /api/members/:id
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -526,20 +554,20 @@ router.get('/:id', async (req, res) => {
         trainer: true,
         club: true,
         membership: {
-      orderBy: { startDate: 'desc' }, // Get most recent first
-      take: 1,                        // Optional: only return one latest
-    },
+          orderBy: { startDate: "desc" }, // Get most recent first
+          take: 1, // Optional: only return one latest
+        },
       },
     });
 
-      console.log('👨‍⚕️ Full member details:', member); // ✅ ADD THIS
+    console.log("👨‍⚕️ Full member details:", member); // ✅ ADD THIS
 
-    if (!member) return res.status(404).json({ error: 'Member not found' });
+    if (!member) return res.status(404).json({ error: "Member not found" });
 
     res.json(member);
   } catch (err) {
-    console.error('Fetch member detail error:', err);
-    res.status(500).json({ error: 'Failed to fetch member details' });
+    console.error("Fetch member detail error:", err);
+    res.status(500).json({ error: "Failed to fetch member details" });
   }
 });
 
@@ -623,12 +651,10 @@ router.get('/:id', async (req, res) => {
 //   }
 // });
 
-
-
 // Your other member routes...
 
 // The new PATCH endpoint
-router.patch('/:id', async (req: Request, res: Response) => {
+router.patch("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const incomingData = req.body; // This is the payload from the frontend (EditDetailsPanel's form state)
@@ -638,32 +664,49 @@ router.patch('/:id', async (req: Request, res: Response) => {
 
     // --- Direct scalar fields ---
     // Only include if they exist in the incomingData
-    if (incomingData.firstName !== undefined) updatePayload.firstName = incomingData.firstName;
-    if (incomingData.lastName !== undefined) updatePayload.lastName = incomingData.lastName;
-    if (incomingData.email !== undefined) updatePayload.email = incomingData.email;
-    if (incomingData.phone !== undefined) updatePayload.phone = incomingData.phone;
+    if (incomingData.firstName !== undefined)
+      updatePayload.firstName = incomingData.firstName;
+    if (incomingData.lastName !== undefined)
+      updatePayload.lastName = incomingData.lastName;
+    if (incomingData.email !== undefined)
+      updatePayload.email = incomingData.email;
+    if (incomingData.phone !== undefined)
+      updatePayload.phone = incomingData.phone;
     if (incomingData.work !== undefined) updatePayload.work = incomingData.work;
-    if (incomingData.gender !== undefined) updatePayload.gender = incomingData.gender;
-    if (incomingData.avatarUrl !== undefined) updatePayload.avatarUrl = incomingData.avatarUrl; // Assuming 'avatarUrl' now, not 'avatar'
-    if (incomingData.keyFob !== undefined) updatePayload.keyFob = incomingData.keyFob;
+    if (incomingData.gender !== undefined)
+      updatePayload.gender = incomingData.gender;
+    if (incomingData.avatarUrl !== undefined)
+      updatePayload.avatarUrl = incomingData.avatarUrl; // Assuming 'avatarUrl' now, not 'avatar'
+    if (incomingData.keyFob !== undefined)
+      updatePayload.keyFob = incomingData.keyFob;
     if (incomingData.tags !== undefined) updatePayload.tags = incomingData.tags;
     if (incomingData.note !== undefined) updatePayload.note = incomingData.note;
-    if (incomingData.memberType !== undefined) updatePayload.memberType = incomingData.memberType;
-    if (incomingData.medicalInfo !== undefined) updatePayload.medicalInfo = incomingData.medicalInfo;
-    if (incomingData.allergies !== undefined) updatePayload.allergies = incomingData.allergies;
-    if (incomingData.medications !== undefined) updatePayload.medications = incomingData.medications;
-    if (incomingData.chronicConditions !== undefined) updatePayload.chronicConditions = incomingData.chronicConditions;
-    if (incomingData.injuries !== undefined) updatePayload.injuries = incomingData.injuries;
-    if (incomingData.doctorContact !== undefined) updatePayload.doctorContact = incomingData.doctorContact;
-
+    if (incomingData.memberType !== undefined)
+      updatePayload.memberType = incomingData.memberType;
+    if (incomingData.medicalInfo !== undefined)
+      updatePayload.medicalInfo = incomingData.medicalInfo;
+    if (incomingData.allergies !== undefined)
+      updatePayload.allergies = incomingData.allergies;
+    if (incomingData.medications !== undefined)
+      updatePayload.medications = incomingData.medications;
+    if (incomingData.chronicConditions !== undefined)
+      updatePayload.chronicConditions = incomingData.chronicConditions;
+    if (incomingData.injuries !== undefined)
+      updatePayload.injuries = incomingData.injuries;
+    if (incomingData.doctorContact !== undefined)
+      updatePayload.doctorContact = incomingData.doctorContact;
 
     // --- Date fields transformation ---
     // Ensure they are converted to Date objects or null if empty string
     if (incomingData.dateOfBirth !== undefined) {
-      updatePayload.dateOfBirth = incomingData.dateOfBirth ? new Date(incomingData.dateOfBirth) : null;
+      updatePayload.dateOfBirth = incomingData.dateOfBirth
+        ? new Date(incomingData.dateOfBirth)
+        : null;
     }
     if (incomingData.lastExamDate !== undefined) {
-      updatePayload.lastExamDate = incomingData.lastExamDate ? new Date(incomingData.lastExamDate) : null;
+      updatePayload.lastExamDate = incomingData.lastExamDate
+        ? new Date(incomingData.lastExamDate)
+        : null;
     }
 
     // --- Nested objects (address, marketing, additional) ---
@@ -671,26 +714,37 @@ router.patch('/:id', async (req: Request, res: Response) => {
     // Ensure we check for the existence of the nested object first.
 
     // Address fields
-    if (incomingData.street !== undefined) updatePayload.street = incomingData.street;
+    if (incomingData.street !== undefined)
+      updatePayload.street = incomingData.street;
     if (incomingData.city !== undefined) updatePayload.city = incomingData.city;
-    if (incomingData.state !== undefined) updatePayload.state = incomingData.state;
+    if (incomingData.state !== undefined)
+      updatePayload.state = incomingData.state;
     if (incomingData.zip !== undefined) updatePayload.zip = incomingData.zip;
-    if (incomingData.addressSearch !== undefined) updatePayload.addressSearch = incomingData.addressSearch;
-
+    if (incomingData.addressSearch !== undefined)
+      updatePayload.addressSearch = incomingData.addressSearch;
 
     // Marketing fields
-    if (incomingData.salesRep !== undefined) updatePayload.salesRep = incomingData.salesRep;
-    if (incomingData.sourcePromotion !== undefined) updatePayload.sourcePromotion = incomingData.sourcePromotion;
-    if (incomingData.referredBy !== undefined) updatePayload.referredBy = incomingData.referredBy;
+    if (incomingData.salesRep !== undefined)
+      updatePayload.salesRep = incomingData.salesRep;
+    if (incomingData.sourcePromotion !== undefined)
+      updatePayload.sourcePromotion = incomingData.sourcePromotion;
+    if (incomingData.referredBy !== undefined)
+      updatePayload.referredBy = incomingData.referredBy;
 
     // Additional fields
-    if (incomingData.trainerId !== undefined) updatePayload.trainerId = incomingData.trainerId; // Direct foreign key
+    if (incomingData.trainerId !== undefined)
+      updatePayload.trainerId = incomingData.trainerId; // Direct foreign key
     if (incomingData.joiningDate !== undefined) {
-        updatePayload.joiningDate = incomingData.joiningDate ? new Date(incomingData.joiningDate) : null;
+      updatePayload.joiningDate = incomingData.joiningDate
+        ? new Date(incomingData.joiningDate)
+        : null;
     }
-    if (incomingData.occupation !== undefined) updatePayload.occupation = incomingData.occupation;
-    if (incomingData.organization !== undefined) updatePayload.organization = incomingData.organization;
-    if (incomingData.involvementType !== undefined) updatePayload.involvementType = incomingData.involvementType;
+    if (incomingData.occupation !== undefined)
+      updatePayload.occupation = incomingData.occupation;
+    if (incomingData.organization !== undefined)
+      updatePayload.organization = incomingData.organization;
+    if (incomingData.involvementType !== undefined)
+      updatePayload.involvementType = incomingData.involvementType;
 
     // --- Emergency (JSONB array field) ---
     // This is passed directly as an array from the frontend to the JSONB field in DB.
@@ -705,16 +759,14 @@ router.patch('/:id', async (req: Request, res: Response) => {
       updatePayload.clubId = incomingData.clubId;
     }
 
-
     // IMPORTANT: Exclude fields that are NOT part of your Member model's direct columns
     // or are relationships that require special Prisma syntax (like `connect`).
     // Examples to explicitly NOT include: `id`, `user`, `club` (the object, only `clubId` is a scalar),
     // `membership`, `billing`, `createdAt`, `updatedAt`, `__typename` (if from GraphQL), etc.
     // The previous error was caused by `id` and `userId` being sent directly in `data`.
 
-
-    console.log('Updating member with ID:', id);
-    console.log('Data being sent to Prisma:', updatePayload); // Log the payload to ensure it's correct
+    console.log("Updating member with ID:", id);
+    console.log("Data being sent to Prisma:", updatePayload); // Log the payload to ensure it's correct
 
     const updated = await prisma.member.update({
       where: { id },
@@ -723,53 +775,52 @@ router.patch('/:id', async (req: Request, res: Response) => {
 
     return res.status(200).json(updated);
   } catch (err: any) {
-    console.error('Error patching member:', err.message);
-    console.error('Error stack:', err.stack);
-    console.error('Request body that caused error:', req.body); // Still good to log the raw incoming data for debugging
-    return res.status(500).json({ error: 'Failed to update member', details: err.message });
+    console.error("Error patching member:", err.message);
+    console.error("Error stack:", err.stack);
+    console.error("Request body that caused error:", req.body); // Still good to log the raw incoming data for debugging
+    return res
+      .status(500)
+      .json({ error: "Failed to update member", details: err.message });
   }
 });
 
-export default router; // Don't forget to export your router
-
-
 // GET /api/members/:id/sessions - All attendance sessions for a member
-router.get('/:id/sessions', async (req, res) => {
+router.get("/:id/sessions", async (req, res) => {
   const { id } = req.params;
 
   try {
     const attendanceRecords = await prisma.attendance.findMany({
       where: { memberId: id },
-      orderBy: { markedAt: 'desc' },
+      orderBy: { markedAt: "desc" },
       include: {
         schedule: {
           include: {
             trainer: { select: { name: true } },
-            location: { select: { name: true } }
-          }
-        }
-      }
+            location: { select: { name: true } },
+          },
+        },
+      },
     });
 
     res.json(attendanceRecords);
   } catch (err) {
-    console.error('Error fetching session history:', err);
-    res.status(500).json({ error: 'Failed to fetch session history' });
+    console.error("Error fetching session history:", err);
+    res.status(500).json({ error: "Failed to fetch session history" });
   }
 });
 
 // GET /api/members/join-trend
-router.get('/join-trend', async (req, res) => {
+router.get("/join-trend", async (req, res) => {
   const { clubId } = req.query;
 
-  if (!clubId) return res.status(400).json({ error: 'Missing clubId' });
+  if (!clubId) return res.status(400).json({ error: "Missing clubId" });
 
   try {
     const result = await prisma.member.groupBy({
-      by: ['joiningDate'],
+      by: ["joiningDate"],
       where: {
         clubId: String(clubId),
-        memberType: 'member',
+        memberType: "member",
         joiningDate: {
           not: null,
         },
@@ -778,34 +829,22 @@ router.get('/join-trend', async (req, res) => {
         _all: true,
       },
       orderBy: {
-        joiningDate: 'asc',
+        joiningDate: "asc",
       },
     });
 
     const trend = result.map((r) => ({
-      date: r.joiningDate.toISOString().split('T')[0],
-      count: r._count._all,
+      date: r.joiningDate?.toISOString().split("T")[0] ?? "unknown",
+      count: r._count?._all ?? 0,
     }));
 
     res.json(trend);
   } catch (err) {
-    console.error('Join trend error:', err);
-    res.status(500).json({ error: 'Failed to fetch join trend' });
+    console.error("Join trend error:", err);
+    res.status(500).json({ error: "Failed to fetch join trend" });
   }
 });
 
-
 // GET /api/billing/revenue-trend
-
-
-
-
-
-
-
-
-
-
-
 
 export default router;
