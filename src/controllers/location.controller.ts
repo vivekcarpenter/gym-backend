@@ -1,15 +1,17 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthenticatedRequest } from '../types/request.types';
 
 const prisma = new PrismaClient();
 
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    clubId?: string;
-    role: string;
-  };
-}
+
+// interface AuthenticatedRequest extends Request {
+//   user?: {
+//     id: string;
+//     clubId?: string;
+//     role: string;
+//   };
+// }
 
 export const getLocationsByClub = async (req: AuthenticatedRequest, res: Response) => {
   const clubId = req.user?.clubId; // Get clubId from authenticated user
