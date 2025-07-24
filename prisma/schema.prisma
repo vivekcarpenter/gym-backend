@@ -129,7 +129,7 @@ model Member {
   memberType  String // 'member' or 'prospect'
   emergencyName String?
   emergencyPhone String?
-  
+  emergencyEmail String?
   emergencyRelationship String?
 
   // Address
