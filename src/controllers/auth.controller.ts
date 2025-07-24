@@ -25,7 +25,12 @@ export const loginController = async (req: Request, res: Response) => {
         console.log('Login Controller Debug: trainerProfile ID:', user.trainerProfile.id);
     }
 
-    const valid = await bcrypt.compare(password, user.password);
+    if (!user.password) {
+  return res.status(401).json({ error: 'Invalid credentials' });
+}
+
+const valid = await bcrypt.compare(password, user.password);
+
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
     const tokenPayload: Record<string, any> = {
