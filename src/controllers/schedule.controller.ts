@@ -5,15 +5,15 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // Extend Request to include user property from auth middleware
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string; // User.id
-    profileId?: string; // Trainer.id or Member.id (if applicable)
-    role: string; // User.role
-    clubId?: string; // Club.id (for franchise_admin, trainer, member)
-    canCreateClasses?: boolean; // Trainer.canCreateClasses
-  };
-}
+// interface AuthenticatedRequest extends Request {
+//   user?: {
+//     id: string; // User.id
+//     profileId?: string; // Trainer.id or Member.id (if applicable)
+//     role: string; // User.role
+//     clubId?: string; // Club.id (for franchise_admin, trainer, member)
+//     canCreateClasses?: boolean; // Trainer.canCreateClasses
+//   };
+// }
 
 // ====================================================================================
 // --- TRAINER-SPECIFIC CLASS MANAGEMENT FUNCTIONS ---
@@ -21,7 +21,7 @@ interface AuthenticatedRequest extends Request {
 // ====================================================================================
 
 // GET /api/schedule/trainer/my - Fetch classes for the logged-in trainer
-export const getTrainerSchedule = async (req: AuthenticatedRequest, res: Response) => {
+export const getTrainerSchedule = async (req: Request, res: Response) => {
   const trainerId = req.user?.profileId; // Use profileId (Trainer.id)
   const userRole = req.user?.role;
 
