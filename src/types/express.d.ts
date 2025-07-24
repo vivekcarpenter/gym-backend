@@ -4,6 +4,7 @@
 
 import { Request } from 'express';
 import { Role } from '@prisma/client'; // Import your Role enum from Prisma client
+import { JwtPayload } from 'jsonwebtoken';
 
 // Extend the Express Request interface to include the user property
 declare global {
@@ -30,3 +31,4 @@ declare global {
     }
   }
 }
+

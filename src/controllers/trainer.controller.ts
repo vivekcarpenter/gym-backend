@@ -16,7 +16,7 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-export const getTrainersByFranchise = async (req: AuthenticatedRequest, res: Response) => {
+export const getTrainersByFranchise = async (req: Request, res: Response) => {
   const { franchiseId } = req.params; // This is the clubId
   const userClubId = req.user?.clubId;
   const userRole = req.user?.role;

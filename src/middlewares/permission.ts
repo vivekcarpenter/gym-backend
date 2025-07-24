@@ -20,7 +20,7 @@ interface AuthenticatedRequest extends Request {
  * @param allowedRoles An array of roles that are permitted to access the route.
  */
 export const authorize = (allowedRoles: Role[]) => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     // 1. Ensure user is authenticated (authMiddleware should run before this)
     if (!req.user) {
       // This should ideally not happen if authMiddleware runs first
