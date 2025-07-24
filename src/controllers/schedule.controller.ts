@@ -1,6 +1,8 @@
 // gym-api/src/controllers/schedule.controller.ts
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthenticatedRequest } from '../types/request.types';
+
 
 const prisma = new PrismaClient();
 
@@ -21,7 +23,7 @@ const prisma = new PrismaClient();
 // ====================================================================================
 
 // GET /api/schedule/trainer/my - Fetch classes for the logged-in trainer
-export const getTrainerSchedule = async (req: Request, res: Response) => {
+export const getTrainerSchedule = async (req: AuthenticatedRequest, res: Response) => {
   const trainerId = req.user?.profileId; // Use profileId (Trainer.id)
   const userRole = req.user?.role;
 
