@@ -3,18 +3,19 @@ import { Request, Response } from 'express';
 import { PrismaClient, Role, UserStatus } from '@prisma/client'; // Make sure UserStatus is imported
 import { generatePasswordSetupToken } from '../utils/authUtils';
 import { sendPasswordSetupEmail } from '../services/email.service';
+import { AuthenticatedRequest } from '../types/request.types';
 
 const prisma = new PrismaClient();
 
 // Interface to extend Express Request with user data from auth middleware
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    role: Role;
-    clubId?: string;
-  };
-}
+// interface AuthenticatedRequest extends Request {
+//   user?: {
+//     id: string;
+//     email: string;
+//     role: Role;
+//     clubId?: string;
+//   };
+// }
 
 export const inviteStaff = async (req: AuthenticatedRequest, res: Response) => {
   const inviterClubId = req.user?.clubId;
