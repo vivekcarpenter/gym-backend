@@ -37,7 +37,7 @@ export const generatePDFBuffer = async (filters: any) => {
   // ✅ Correct way to handle ES module import
   try {
     const { default: getStream } = await import('get-stream');
-    return await getStream.buffer(doc);
+    return await getStream.buffer(doc as any);
   } catch (error) {
     // Fallback method if get-stream fails
     return new Promise<Buffer>((resolve, reject) => {
@@ -64,7 +64,7 @@ const fetchFilteredData = async (filters: any) => {
   return await prisma.member.findMany({
     where: {
       clubId: clubId || undefined,
-      membershipType: membershipType || undefined,
+      memberType: membershipType || undefined,
       createdAt: {
         gte: startDate ? new Date(startDate) : undefined,
         lte: endDate ? new Date(endDate) : undefined,

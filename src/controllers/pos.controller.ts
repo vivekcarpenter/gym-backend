@@ -1,15 +1,19 @@
 // gym-api/src/controllers/pos.controller.ts
+
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { AuthenticatedRequest } from '../types/request.types';
 
 const prisma = new PrismaClient();
 
+// GET /products
 export const getProducts = async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+
   try {
     const products = await prisma.product.findMany({
       where: {
-        clubId: req.user.clubId!,
+        clubId: req.user?.clubId,
       },
     });
     res.json(products);
@@ -19,18 +23,23 @@ export const getProducts = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
+// POST /products
 export const createProduct = async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+
   try {
     const { name, category, price, stock } = req.body;
+
     const product = await prisma.product.create({
       data: {
         name,
         category,
         price: parseFloat(price),
         stock: parseInt(stock),
-        clubId: req.user.clubId!,
+        clubId: req?.user?.clubId as string,
       },
     });
+
     res.status(201).json(product);
   } catch (err) {
     console.error('POST /products error:', err);
@@ -38,7 +47,10 @@ export const createProduct = async (req: AuthenticatedRequest, res: Response) =>
   }
 };
 
+// PUT /products/:id
 export const updateProduct = async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+
   try {
     const { id } = req.params;
     const { name, category, price, stock } = req.body;
@@ -60,9 +72,13 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
   }
 };
 
+// DELETE /products/:id
 export const deleteProduct = async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+
   try {
     const { id } = req.params;
+
     await prisma.product.delete({ where: { id } });
     res.json({ message: 'Product deleted' });
   } catch (err) {
@@ -71,13 +87,14 @@ export const deleteProduct = async (req: AuthenticatedRequest, res: Response) =>
   }
 };
 
+// POST /products/transaction
 export const processTransaction = async (req: AuthenticatedRequest, res: Response) => {
-  const staffId = req.user?.id;
-  const clubId = req.user?.clubId;
-  // Destructure memberId from the request body
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+
+  const { id: staffId, clubId } = req.user;
   const { method, items, memberId } = req.body;
 
-  if (!staffId || !clubId || !method || !Array.isArray(items)) {
+  if (!staffId || !clubId || !method || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Invalid transaction request.' });
   }
 
@@ -87,6 +104,7 @@ export const processTransaction = async (req: AuthenticatedRequest, res: Respons
       0
     );
 
+    // Create transaction
     const createdTx = await prisma.productTransaction.create({
       data: {
         staffId,
@@ -97,37 +115,39 @@ export const processTransaction = async (req: AuthenticatedRequest, res: Respons
           create: items.map((item: any) => ({
             productId: item.productId,
             quantity: item.quantity,
-            unitPrice: item.unitPrice
-          }))
-        }
+            unitPrice: item.unitPrice,
+          })),
+        },
       },
-      include: { items: true }
+      include: { items: true },
     });
 
-    // Decrease stock for each product
+    // Update stock for each product
     for (const item of items) {
       await prisma.product.update({
         where: { id: item.productId },
         data: {
           stock: {
-            decrement: item.quantity
-          }
-        }
+            decrement: item.quantity,
+          },
+        },
       });
     }
 
-    // Create Invoice, using the memberId from the request body, which can be null
-    await prisma.invoice.create({
-      data: {
-        memberId: memberId || null, // Use the memberId from req.body, default to null if not provided
-        planName: 'POS Sale',
-        amount: total,
-        status: 'paid',
-        clubId,
-        issuedAt: new Date(),
-        dueDate: new Date(),
-      }
-    });
+    // Create invoice if memberId is provided
+    if (memberId) {
+      await prisma.invoice.create({
+        data: {
+          memberId,
+          planName: 'POS Sale',
+          amount: total,
+          status: 'paid',
+          clubId,
+          issuedAt: new Date(),
+          dueDate: new Date(),
+        },
+      });
+    }
 
     res.status(201).json({ message: 'Transaction completed', transaction: createdTx });
   } catch (error) {
@@ -135,4 +155,3 @@ export const processTransaction = async (req: AuthenticatedRequest, res: Respons
     res.status(500).json({ error: 'Failed to process transaction.' });
   }
 };
-
