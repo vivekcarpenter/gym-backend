@@ -39,7 +39,7 @@ export const getLeadById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const lead = await prisma.lead.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id.toString() },
       include: { member: true },
     });
 
@@ -116,7 +116,7 @@ export const updateLead = async (req: Request, res: Response) => {
 
   try {
     const lead = await prisma.lead.update({
-      where: { id: parseInt(id) }, 
+      where: { id: id.toString() }, 
       data: { name, email, phone, status },
     });
 
@@ -132,7 +132,7 @@ export const deleteLead = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     await prisma.lead.delete({
-      where: { id: parseInt(id) },
+      where: { id: id.toString() },
     });
 
     res.status(204).send();
@@ -219,57 +219,46 @@ export const getStaffMembers = async (req: Request, res: Response) => {
 // ... (existing imports and other controller functions)
 
 export const convertLead = async (req: Request, res: Response) => {
-  const { id } = req.params; // This is the ID of the LEAD from the URL
+  const { id } = req.params; // ID from URL
 
   try {
-    // 1. Find the Lead and include its associated Member (if any)
+    // Fetch lead with member
     const leadToConvert = await prisma.lead.findUnique({
-      where: { id: parseInt(id)},
-      include: {
-       member :{
-       id: true,
-      memberType: true,
-       }
-        
-      },
+      where: { id: id.toString() },
+      include: { member: true }, // just 'true' for include
     });
 
     if (!leadToConvert) {
       return res.status(404).json({ error: 'Lead not found.' });
     }
 
-    // Start a Prisma transaction if you want both updates (Lead and Member) to be atomic.
-    // If one fails, both rollback. This is highly recommended for dependent operations.
-    const [updatedLead, updatedMember] = await prisma.$transaction([
-      // 2. Update the Lead's status to "CONVERTED"
+    // Transactionally convert lead + update member if linked
+    let actions = [
       prisma.lead.update({
-        where: { id: parseInt(id) },
+        where: { id: id.toString() },
         data: {
           status: 'CONVERTED',
           convertedAt: new Date(),
         },
       }),
-      // 3. Conditionally update the associated Member's type if a member is linked
-      ...(leadToConvert.member ? [ // Use spread operator with an array for conditional update
-        prisma.member.update({
-          where: { id: leadToConvert.member.id },
-          data: {
-            memberType: 'member', // Change memberType from 'prospect' to 'member'
-          },
-        })
-      ] : []), // If no member, return an empty array for the transaction
-    ]);
+    ];
 
-    // If you don't use a transaction, you'd do:
-    // const updatedLead = await prisma.lead.update({ ... });
-    // if (leadToConvert.member) {
-    //   const updatedMember = await prisma.member.update({ ... });
-    // }
+    if (leadToConvert.member?.id) {
+  actions.push(
+    prisma.member.update({
+      where: { id: leadToConvert.member.id.toString() },
+      data: { memberType: 'member' },
+    })
+  );
+}
 
-    res.status(200).json(updatedLead); // Return the updated lead
+    const [updatedLead] = await prisma.$transaction(actions);
+
+    res.status(200).json(updatedLead);
   } catch (error) {
     console.error('Error converting lead:', error);
     res.status(500).json({ message: 'Failed to convert lead', error: (error as Error).message });
   }
 };
+
 
