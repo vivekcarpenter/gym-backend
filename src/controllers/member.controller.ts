@@ -14,14 +14,22 @@ if (!club) {
 
     const member = await createNewMember(req.body);
     res.status(201).json(member);
-  } catch (err) {
+  } 
+  catch (err: unknown) {
   console.error('[CREATE_MEMBER_ERROR]', err);
-  if (err.code === 'P2002') {
-    return res.status(400).json({ error: 'Email already exists' });
+
+  // Check if err is a known error object
+  if (typeof err === 'object' && err !== null && 'code' in err) {
+    const error = err as { code: string };
+
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'Email already exists' });
+    }
   }
 
-  res.status(500).json({ error: 'Failed to create member' });
+  return res.status(500).json({ error: 'Failed to create member' });
 }
+
 };
 export const getMembers = async (req: Request, res: Response) => {
 
