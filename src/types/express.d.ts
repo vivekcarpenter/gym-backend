@@ -10,13 +10,22 @@ declare global {
   namespace Express {
     interface Request {
       user?: {
-        id: string; // This is the User.id
-        email: string;
-        role: Role;
-        clubId?: string;
-        profileType?: 'trainer' | 'member'; // 'trainer' if user is a trainer
-        profileId?: string;                 // The Trainer.id if user is a trainer
-        canCreateClasses?: boolean;         // Trainer.canCreateClasses
+        id: string;
+  email: string;
+  role: Role;
+  clubId?: string;
+  profileType?: 'trainer' | 'member';
+  profileId?: string;
+  canCreateClasses?: boolean;
+  exp: number;
+  iat: number;
+        // id: string; // This is the User.id
+        // email: string;
+        // role: Role;
+        // clubId?: string;
+        // profileType?: 'trainer' | 'member'; // 'trainer' if user is a trainer
+        // profileId?: string;                 // The Trainer.id if user is a trainer
+        // canCreateClasses?: boolean;         // Trainer.canCreateClasses
       };
     }
   }
