@@ -128,6 +128,8 @@ model Member {
 
   memberType  String // 'member' or 'prospect'
   emergencyName String?
+  emergencyPhone String?
+  
   emergencyRelationship String?
 
   // Address
